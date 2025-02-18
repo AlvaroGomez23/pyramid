@@ -4,7 +4,8 @@
   "description": "P4.1 - Pyramid: un joc multijugador online per equips\r Oberta el dimarts, 18 de febrer 2025, 18:30\r Venciment: dimecres, 26 de febrer 2025, 23:55\r Aquesta pràctica s'ha de fer en parelles diferents de les de la pràctica Anem al cinema.\r Tots dos heu de conèixer el codi i el funcionament de qualsevol part de l'aplicació.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch ./servidor/server.mjs"
   },
   "keywords": [],
   "author": "",
