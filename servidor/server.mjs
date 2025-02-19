@@ -81,8 +81,8 @@ app.get('/logout', (req, res) => {
 wss.on('connection', (ws) => {
     console.log('Nuevo cliente conectado');
     const playerId = crypto.randomUUID(); // Genera una ID de caracteres random para el usuario
-    const startX = Math.random() * gameConfig.width;
-    const startY = Math.random() * gameConfig.height;
+    const startX = Math.random() * gameConfig.width - 30;
+    const startY = Math.random() * gameConfig.height - 30;
     
     players[playerId] = { id: playerId, x: startX, y: startY, color: game.getRandomColor() };
     ws.send(JSON.stringify({ type: 'config', ...gameConfig }));

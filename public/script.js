@@ -5,13 +5,15 @@ const socket = new WebSocket('ws://localhost:8180');
 let players = {};
 let rocks = [];
 let playerId = null;
+let currentDirection = null; // Guardar la dirección actual
+let movementInterval = null; // Guardar el intervalo de movimiento
 
 socket.onmessage = (message) => {
     const data = JSON.parse(message.data);
 
     if (data.type === 'config') {
-        canvas.width = data.width;
-        canvas.height = data.height;
+        canvas.width = data.width + 30;
+        canvas.height = data.height + 30;
         rocks = data.rocks || []; // Asegurar que las rocas se reciban
     }
     if (data.type === 'connected') {
@@ -38,9 +40,7 @@ function drawGame() {
 
 function drawRock(rock) {
     ctx.fillStyle = '#8B4513'; // Color marrón para rocas
-    ctx.beginPath();
-    ctx.arc(rock.x, rock.y, 15, 0, Math.PI * 2); // Hacer las rocas más grandes
-    ctx.fill();
+    ctx.fillRect(rock.x, rock.y, 20, 20); // Dibujar roca como cuadrado de 20x20
 }
 
 function drawPlayer(player) {
@@ -48,17 +48,34 @@ function drawPlayer(player) {
     ctx.fillRect(player.x, player.y, 30, 30);
 }
 
+// Manejo del movimiento automático
 window.addEventListener('keydown', (event) => {
     if (!playerId) return;
+
     const direction = {
         ArrowLeft: 'left',
         ArrowRight: 'right',
         ArrowUp: 'up',
         ArrowDown: 'down',
-        Space: 'grab'
+        w: 'up',
+        a: 'left',
+        s: 'down',
+        d: 'right',
+        ' ': 'grab'
     }[event.key];
 
-    if (direction) {
-        socket.send(JSON.stringify({ type: direction === 'grab' ? 'grab' : 'move', playerId, direction }));
+    if (direction && direction !== currentDirection) {
+        currentDirection = direction;
+        startMoving(direction);
     }
 });
+
+
+
+function startMoving(direction) {
+    if (movementInterval) clearInterval(movementInterval);
+
+    movementInterval = setInterval(() => {
+        socket.send(JSON.stringify({ type: 'move', playerId, direction }));
+    }, 1); 
+}
