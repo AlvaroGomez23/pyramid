@@ -22,7 +22,7 @@ const io = new Server(server);
 
 // - GOOGLE OAUTH2
 // Credencials Google
-const credencials = JSON.parse(fs.readFileSync(path.join(__dirname, "./Oauth/credencialsOauth.json")));
+const credencials = JSON.parse(fs.readFileSync(path.join(__dirname, "/Oauth/credencialsOauth.json")));
 
 passport.use(
   new GoogleStrategy(
