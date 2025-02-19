@@ -20,7 +20,7 @@ let gameConfig = { width: 800, height: 600, running: false };
 let players = {};
 
 const server = app.listen(8180, () => {
-    console.log('Servidor HTTP en https://localhost:8180');
+    console.log('Servidor HTTP en http://localhost:8180');
 });
 
 wss.on('connection', (ws) => {
