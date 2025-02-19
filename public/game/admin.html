@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - OnlineGames</title>
+    <script src="src/script.js"></script>
+</head>
+<body>
+    <h1>Administrador - Configura el Joc</h1>
+    <button id="startStopBtn">Engegar</button>
+    <div>
+        <label for="width">Amplada:</label>
+        <input id="width" type="number" min="1">
+        <label for="height">Altura:</label>
+        <input id="height" type="number" min="1">
+        <label for="floors">Pisos:</label>
+        <input id="floors" type="number" min="1">
+    </div>
+    <script>
+        // Lógica WebSocket para el administrador
+        const socket = new WebSocket('ws://localhost:8180');
+        
+        socket.onopen = () => {
+            socket.send(JSON.stringify({ type: 'admin' }));
+        };
+
+        socket.onmessage = (message) => {
+            const data = JSON.parse(message.data);
+            if (data.type === 'config') {
+                document.getElementById('width').value = data.width;
+                document.getElementById('height').value = data.height;
+                document.getElementById('floors').value = data.floors;
+            }
+            if (data.type === 'startStop') {
+                const btn = document.getElementById('startStopBtn');
+                btn.textContent = data.running ? 'Aturar' : 'Engegar';
+            }
+        };
+
+        socket.onclose = (event) => {
+            alert("Connexió tancada. Tornant a la pàgina principal.");
+            window.location.href = "index.html";
+        };
+
+        socket.onerror = (error) => {
+            alert("Error de connexió. Tornant a la pàgina principal.");
+            window.location.href = "index.html";
+        };
+
+        document.getElementById('startStopBtn').addEventListener('click', () => {
+            const action = document.getElementById('startStopBtn').textContent === 'Engegar' ? 'start' : 'stop';
+            socket.send(JSON.stringify({ type: action }));
+        });
+    </script>
+</body>
+</html>

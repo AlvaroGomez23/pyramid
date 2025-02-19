@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import * as game from './game.mjs';
 import express from 'express';
+import session from "express-session";
 import passport from 'passport';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,6 +17,12 @@ const PORT = 8180;
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(__filename);
+
+// Configurar sesió
+app.use(session({ secret: "secreto", resave: false, saveUninitialized: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Servidor HTTP
 const server = http.createServer(app);
@@ -38,7 +45,7 @@ passport.use(
         {
             clientID: credencials.clientId,
             clientSecret: credencials.clientSecret,
-            callbackURL: 'http://localhost:8180/auth/google/callback',
+            callbackURL: `http://localhost:${PORT}/auth/google/callback`,
         },
         (accessToken, refreshToken, profile, done) => {
             return done(null, profile);
@@ -56,8 +63,9 @@ app.set('view engine', 'ejs');
 
 // Rutas
 app.get('/', (req, res) => {
-    res.sendFile(path.join(_dirname, '../public', 'Oauth.html'));
+    res.sendFile(path.join(_dirname, '../public', 'index.html'));
 });
+
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
@@ -66,16 +74,28 @@ app.get('/auth/google/callback', passport.authenticate('google', { failureRedire
 );
 
 app.get('/profile', (req, res) => {
+    const email = req.user?.emails[0].value;
+
+    if (!email.endsWith('@sapalomera.cat')) { return res.redirect('/'); }
+
     if (!req.isAuthenticated()) return res.redirect('/');
-    res.send(`Benvingut ${JSON.stringify(req.user)}`);
+
+    res.redirect('/pantallaCarrega');
 });
 
-app.get('/logout', (req, res) => {
-    req.logout(err => {
-        if (err) return next(err);
-        res.redirect('/');
-    });
+app.get('/pantallaCarrega', (req, res) => {
+    res.sendFile(path.join(_dirname, '../public', '/game/pantallaCarrega.html'));
 });
+
+// app.get('/logout', (req, res) => {
+//     req.logout(err => {
+//         if (err) return next(err);
+//         res.redirect('/');
+//     });
+// });
+
+// ------------------
+// --- JUEGO --------
 
 // WebSockets
 wss.on('connection', (ws) => {
