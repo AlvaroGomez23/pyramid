@@ -75,7 +75,6 @@ export function generarRocasFaltantes(config) {
             });
         }
     }
-
 }
 
 function checkRockPickup(player, gameConfig) {
