@@ -58,7 +58,7 @@ export function getRandomColor() {
 export function generateRandomRocks(config) {
     config.rocks = []; // Asegurar que el array esté vacío antes de llenarlo
     if (config.rocks.length >= 10) return; // No generar más rocas si ya hay 10
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < config.rocks.length; i++) {
         config.rocks.push({
             x: Math.random() * config.width,
             y: Math.random() * config.height
