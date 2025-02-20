@@ -95,18 +95,39 @@ function checkRockPickup(player, gameConfig) {
 
 export function pickUpRock(player, gameConfig) {
     if (player.piedra) {
-        // Si el jugador ya lleva una piedra, soltarla en la posición actual
-        gameConfig.rocks.push({
-            x: player.x,
-            y: player.y
-        });
-        player.piedra = false; // Marcar al jugador como que no tiene la roca
-        let prevColor = player.color;
-        player.color = prevColor; // Cambiar el color del jugador
-        console.log('¡Soltaste una piedra!');
+        // Si el jugador ya lleva una piedra, verificar si la suelta en su área
+        if (isInArea(player, player.equip === 'equipLila' ? gameConfig.areaLila : gameConfig.areaBlau)) {
+            console.log('¡Piedra entregada en el área!');
+            if (player.equip === 'equipLila') {
+                gameConfig.puntsLila++;
+                player.color = 'purple'; // Cambiar el color del jugador cuando suelta la roca en el area
+            } else if (player.equip === 'equipBlau') {
+                gameConfig.puntsBlau++;
+                player.color = 'blue'; // Cambiar el color del jugador
+            }
+            console.log('Puntos del equipo lila:', gameConfig.puntsLila);
+            console.log('Puntos del equipo blau:', gameConfig.puntsBlau);
+            player.piedra = false;
+            if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
+                generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
+            }
+        } else {
+            // Si no está en el área, soltar la piedra en la posición actual
+            gameConfig.rocks.push({
+                x: player.x,
+                y: player.y
+            });
+            player.piedra = false; // Marcar al jugador como que no tiene la roca
+            if (player.equip === 'equipLila') player.color = 'purple'; // Aqui cambia el color cuando deja la piedra
+            if (player.equip === 'equipBlau') player.color = 'blue'; // Lo mismo con el azul
+            console.log('¡Soltaste una piedra!');
+        }
     } else {
         // Si el jugador no lleva una piedra, intentar recoger una
+        let pickedUp = false;
         gameConfig.rocks = gameConfig.rocks.filter(rock => {
+            if (pickedUp) return true; // Si ya recogió una piedra, mantener las demás
+
             const isColliding =
                 player.x < rock.x + 20 &&
                 player.x + 30 > rock.x &&
@@ -116,14 +137,20 @@ export function pickUpRock(player, gameConfig) {
             if (isColliding) {
                 console.log('¡Recogiste una piedra!');
                 player.piedra = true; // Marcar al jugador como que tiene la roca
-                player.color = 'black'; // Cambiar el color del jugador
+                player.color = 'black'; // Aqui es cuando lleva una piedra, se pone negro pero hay que cambiarlo dependiendo del equipo
+                pickedUp = true; // Marcar que ya recogió una piedra
                 return false; // Eliminar la roca del array
             }
             return true; // Mantener la roca
         });
-
-        if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
-            generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
-        }
     }
+}
+
+function isInArea(player, area) {
+    return (
+        player.x >= area.x &&
+        player.x <= area.x + area.width &&
+        player.y >= area.y &&
+        player.y <= area.y + area.height
+    );
 }

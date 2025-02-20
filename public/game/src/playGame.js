@@ -8,8 +8,8 @@ let playerId = null;
 let currentDirection = null; // Guardar la dirección actual
 let movementInterval = null; // Guardar el intervalo de movimiento
 
-const area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 255, 0, 0.5)' }; // Área verde
-let area2 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(255, 0, 0, 0.5)' }; // Área roja
+let area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' }; // Área verde
+let area2 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 21, 255, 0.74)' }; // Área roja
 
 socket.onmessage = (message) => {
     const data = JSON.parse(message.data);
@@ -18,7 +18,8 @@ socket.onmessage = (message) => {
         areaDeJoc.width = data.width + 30;
         areaDeJoc.height = data.height + 30;
         rocks = data.rocks || []; // Asegurar que las rocas se reciban
-        area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(255, 0, 0, 0.5)' };
+        area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
+        area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(0, 128, 255, 0.74)' };
     }
     if (data.type === 'connected') {
         playerId = data.playerId;
