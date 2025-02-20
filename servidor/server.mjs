@@ -119,6 +119,9 @@ wss.on('connection', (ws) => {
         if (data.type === 'move' && players[data.playerId]) {
             game.movePlayer(players[data.playerId], data.direction, players, gameConfig);
             broadcastGameState();
+        } else if (data.type === 'grab' && players[data.playerId]) {
+            game.pickUpRock(players[data.playerId], gameConfig);
+            broadcastGameState();
         }
     });
     

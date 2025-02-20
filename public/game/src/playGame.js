@@ -8,6 +8,9 @@ let playerId = null;
 let currentDirection = null; // Guardar la dirección actual
 let movementInterval = null; // Guardar el intervalo de movimiento
 
+const area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 255, 0, 0.5)' }; // Área verde
+let area2 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(255, 0, 0, 0.5)' }; // Área roja
+
 socket.onmessage = (message) => {
     const data = JSON.parse(message.data);
 
@@ -15,6 +18,7 @@ socket.onmessage = (message) => {
         areaDeJoc.width = data.width + 30;
         areaDeJoc.height = data.height + 30;
         rocks = data.rocks || []; // Asegurar que las rocas se reciban
+        area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(255, 0, 0, 0.5)' };
     }
     if (data.type === 'connected') {
         playerId = data.playerId;
@@ -28,6 +32,10 @@ socket.onmessage = (message) => {
 
 function crearAreaDeJoc() {
     pincell.clearRect(0, 0, areaDeJoc.width, areaDeJoc.height);
+
+    // Dibujar áreas de destino
+    crearAreaPiramides(area1);
+    crearAreaPiramides(area2);
 
     // Dibujar rocas:
     for (const rock of rocks) {
@@ -50,6 +58,11 @@ function crearJugadors(player) {
     pincell.fillRect(player.x, player.y, 30, 30);
 }
 
+function crearAreaPiramides(area) {
+    pincell.fillStyle = area.color;
+    pincell.fillRect(area.x, area.y, area.width, area.height);
+}
+
 // Manejo del movimiento automático
 window.addEventListener('keydown', (event) => {
     if (!playerId) return;
@@ -69,6 +82,10 @@ window.addEventListener('keydown', (event) => {
     if (direction && direction !== currentDirection) {
         currentDirection = direction;
         ComencarMoviment(direction);
+    }
+
+    if (event.key === ' ') {
+        socket.send(JSON.stringify({ type: 'grab', playerId }));
     }
 });
 

@@ -78,8 +78,23 @@ export function generarRocasFaltantes(config) {
 }
 
 function checkRockPickup(player, gameConfig) {
-    gameConfig.rocks = gameConfig.rocks.filter(rock => {
+    return gameConfig.rocks.some(rock => {
         // Verificar colisión con bounding boxes (colisión de cuadrados)
+        const isColliding =
+            player.x < rock.x + 20 &&
+            player.x + 30 > rock.x &&
+            player.y < rock.y + 20 &&
+            player.y + 30 > rock.y;
+
+            if (isColliding) {
+                console.log('Esta colisionando con una roca');
+            }
+        return isColliding;
+    });
+}
+
+export function pickUpRock(player, gameConfig) {
+    gameConfig.rocks = gameConfig.rocks.filter(rock => {
         const isColliding =
             player.x < rock.x + 20 &&
             player.x + 30 > rock.x &&
@@ -97,4 +112,3 @@ function checkRockPickup(player, gameConfig) {
         generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
     }
 }
-
