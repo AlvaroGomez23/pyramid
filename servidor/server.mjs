@@ -36,7 +36,11 @@ let gameConfig = {
     width: 800,
     height: 600,
     running: false,
-    rocks: []
+    rocks: [],
+    areaLila: { x: 0, y: 0, width: 150, height: 150 }, // Área del equipo Lila
+    areaBlau: { x: 650, y: 450, width: 150, height: 150 }, // Área del equipo Blau
+    puntsBlau: 0,
+    puntsLila: 0
 };
 
 let players = {};
@@ -70,7 +74,6 @@ app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
     res.sendFile(path.join(_dirname, '../public', 'index.html'));
 });
-
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
@@ -114,6 +117,9 @@ wss.on('connection', (ws) => {
         if (data.type === 'move' && players[data.playerId]) {
             game.movePlayer(players[data.playerId], data.direction, players, gameConfig);
             broadcastGameState();
+        } else if (data.type === 'grab' && players[data.playerId]) {
+            game.pickUpRock(players[data.playerId], gameConfig);
+            broadcastGameState();
         }
     });
     
@@ -140,14 +146,28 @@ function crearJugador() {
     //Generar ID unic:
     const playerId = crypto.randomUUID();
 
-    //Posició inicial:
-    const startX = Math.random() * gameConfig.width - 30;
-    const startY = Math.random() * gameConfig.height - 30;
-
     //Assignar equip:
     const equipJugador = assignarEquip();
+
+    let startX, startY;
+    //Posició inicial:
+    do {
+        if (equipJugador === 'equipLila') {
+            startX = Math.random() * gameConfig.areaLila.width - 30;
+            startY = Math.random() * gameConfig.areaLila.height - 30;
+        } else {
+            startX = Math.random() * gameConfig.areaBlau.width + gameConfig.areaBlau.x + 30;
+            startY = Math.random() * gameConfig.areaBlau.height + gameConfig.areaBlau.y + 30;
+        }
+    } while (isPositionOccupied(startX, startY));
     
-    return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador) };
+    return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
+}
+
+function isPositionOccupied(x, y) {
+    return Object.values(players).some(player => {
+        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar si la distancia entre jugadores es menor a 30
+    });
 }
 
 function assignarEquip() {

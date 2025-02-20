@@ -8,6 +8,9 @@ let playerId = null;
 let currentDirection = null; // Guardar la dirección actual
 let movementInterval = null; // Guardar el intervalo de movimiento
 
+let area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' }; // Área verde
+let area2 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 21, 255, 0.74)' }; // Área roja
+
 socket.onmessage = (message) => {
     const data = JSON.parse(message.data);
 
@@ -15,6 +18,8 @@ socket.onmessage = (message) => {
         areaDeJoc.width = data.width + 30;
         areaDeJoc.height = data.height + 30;
         rocks = data.rocks || []; // Asegurar que las rocas se reciban
+        area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
+        area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(0, 128, 255, 0.74)' };
     }
     if (data.type === 'connected') {
         playerId = data.playerId;
@@ -28,6 +33,10 @@ socket.onmessage = (message) => {
 
 function crearAreaDeJoc() {
     pincell.clearRect(0, 0, areaDeJoc.width, areaDeJoc.height);
+
+    // Dibujar áreas de destino
+    crearAreaPiramides(area1);
+    crearAreaPiramides(area2);
 
     // Dibujar rocas:
     for (const rock of rocks) {
@@ -46,8 +55,21 @@ function crearRoques(rock) {
 }
 
 function crearJugadors(player) {
-    pincell.fillStyle = player.color;
+    if (player.id === playerId) {
+        if (player.equip === 'equipLila') {
+            pincell.fillStyle = 'pink'; // Color rosa para el jugador actual
+        } else if (player.equip === 'equipBlau') {
+            pincell.fillStyle = 'lightblue'; // Color azul claro para el jugador actual
+        }
+    } else {
+        pincell.fillStyle = player.color;
+    }
     pincell.fillRect(player.x, player.y, 30, 30);
+}
+
+function crearAreaPiramides(area) {
+    pincell.fillStyle = area.color;
+    pincell.fillRect(area.x, area.y, area.width, area.height);
 }
 
 // Manejo del movimiento automático
@@ -63,12 +85,17 @@ window.addEventListener('keydown', (event) => {
         a: 'left',
         s: 'down',
         d: 'right',
-        ' ': 'grab'
+        ' ': 'grab',
+        Enter: 'grab'
     }[event.key];
 
     if (direction && direction !== currentDirection) {
         currentDirection = direction;
         ComencarMoviment(direction);
+    }
+
+    if (event.key === ' ' || event.key === 'Enter') {
+        socket.send(JSON.stringify({ type: 'grab', playerId }));
     }
 });
 
@@ -77,5 +104,5 @@ function ComencarMoviment(direction) {
 
     movementInterval = setInterval(() => {
         socket.send(JSON.stringify({ type: 'move', playerId, direction }));
-    }, 1); 
+    }, 10); 
 }
