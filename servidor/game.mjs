@@ -58,12 +58,24 @@ export function getRandomColor() {
 export function generateRandomRocks(config) {
     config.rocks = []; // Asegurar que el array esté vacío antes de llenarlo
     if (config.rocks.length >= 10) return; // No generar más rocas si ya hay 10
-    for (let i = 0; i < config.rocks.length; i++) {
+    for (let i = 0; i < 10; i++) {
         config.rocks.push({
             x: Math.random() * config.width,
             y: Math.random() * config.height
         });
     }
+}
+
+export function generarRocasFaltantes(config) {
+    if (config.rocks.length < 10) {
+        for (let i = config.rocks.length; i < 10; i++) {
+            config.rocks.push({
+                x: Math.random() * config.width,
+                y: Math.random() * config.height
+            });
+        }
+    }
+
 }
 
 function checkRockPickup(player, gameConfig) {
@@ -83,7 +95,7 @@ function checkRockPickup(player, gameConfig) {
     });
 
     if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
-        generateRandomRocks(gameConfig); // Llamar a esta función para generar las rocas que faltan
+        generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
     }
 }
 

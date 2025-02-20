@@ -99,12 +99,17 @@ app.get('/pantallaCarrega', (req, res) => {
 
 // WebSockets
 wss.on('connection', (ws) => {
+    const COLOR1 = 'purple';
+    const COLOR2 = 'blue';
     console.log('Nuevo cliente conectado');
     const playerId = crypto.randomUUID(); // Genera una ID de caracteres random para el usuario
     const startX = Math.random() * gameConfig.width - 30;
     const startY = Math.random() * gameConfig.height - 30;
+
+    const color = Object.keys(players).length % 2 === 0 ? COLOR1 : COLOR2;
+    console.log('Jugadores actuales: ', Object.keys(players).length + 1);
     
-    players[playerId] = { id: playerId, x: startX, y: startY, color: game.getRandomColor() };
+    players[playerId] = { id: playerId, x: startX, y: startY, color: color};
     ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
     ws.send(JSON.stringify({ type: 'connected', playerId }));
     broadcastGameState();

@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const socket = new WebSocket('ws://localhost:8180');
 
 let players = {};
+let numPlayers = 0;
 let rocks = [];
 let playerId = null;
 let currentDirection = null; // Guardar la dirección actual
