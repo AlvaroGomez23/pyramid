@@ -86,29 +86,44 @@ function checkRockPickup(player, gameConfig) {
             player.y < rock.y + 20 &&
             player.y + 30 > rock.y;
 
-            if (isColliding) {
-                console.log('Esta colisionando con una roca');
-            }
+        if (isColliding) {
+            console.log('Esta colisionando con una roca');
+        }
         return isColliding;
     });
 }
 
 export function pickUpRock(player, gameConfig) {
-    gameConfig.rocks = gameConfig.rocks.filter(rock => {
-        const isColliding =
-            player.x < rock.x + 20 &&
-            player.x + 30 > rock.x &&
-            player.y < rock.y + 20 &&
-            player.y + 30 > rock.y;
+    if (player.piedra) {
+        // Si el jugador ya lleva una piedra, soltarla en la posición actual
+        gameConfig.rocks.push({
+            x: player.x,
+            y: player.y
+        });
+        player.piedra = false; // Marcar al jugador como que no tiene la roca
+        let prevColor = player.color;
+        player.color = prevColor; // Cambiar el color del jugador
+        console.log('¡Soltaste una piedra!');
+    } else {
+        // Si el jugador no lleva una piedra, intentar recoger una
+        gameConfig.rocks = gameConfig.rocks.filter(rock => {
+            const isColliding =
+                player.x < rock.x + 20 &&
+                player.x + 30 > rock.x &&
+                player.y < rock.y + 20 &&
+                player.y + 30 > rock.y;
 
-        if (isColliding) {
-            console.log('¡Recogiste una piedra!');
-            return false; // Eliminar la roca del array
+            if (isColliding) {
+                console.log('¡Recogiste una piedra!');
+                player.piedra = true; // Marcar al jugador como que tiene la roca
+                player.color = 'black'; // Cambiar el color del jugador
+                return false; // Eliminar la roca del array
+            }
+            return true; // Mantener la roca
+        });
+
+        if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
+            generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
         }
-        return true; // Mantener la roca
-    });
-
-    if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
-        generarRocasFaltantes(gameConfig); // Llamar a esta función para generar las rocas que faltan
     }
 }

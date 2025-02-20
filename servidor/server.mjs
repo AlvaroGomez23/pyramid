@@ -109,7 +109,7 @@ wss.on('connection', (ws) => {
     const color = Object.keys(players).length % 2 === 0 ? COLOR1 : COLOR2;
     console.log('Jugadores actuales: ', Object.keys(players).length + 1);
     
-    players[playerId] = { id: playerId, x: startX, y: startY, color: color};
+    players[playerId] = { id: playerId, x: startX, y: startY, color: color, piedra: false};
     ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
     ws.send(JSON.stringify({ type: 'connected', playerId }));
     broadcastGameState();
