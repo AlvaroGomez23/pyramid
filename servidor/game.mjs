@@ -1,17 +1,7 @@
 let movementIntervals = {}; // Almacena los intervalos de movimiento de cada jugador
 
-export function startMovingPlayer(player, direction, players, gameConfig) {
-    if (movementIntervals[player.id]) {
-        clearInterval(movementIntervals[player.id]); // Detiene el movimiento anterior si existe
-    }
-
-    movementIntervals[player.id] = setInterval(() => {
-        movePlayer(player, direction, players, gameConfig);
-    }, 100); // Ajusta la velocidad del movimiento aquí (100 ms = 10 FPS)
-}
-
 export function movePlayer(player, direction, players, gameConfig) {
-    const step = 0.5;
+    const step = 1;
     let newX = player.x;
     let newY = player.y;
 

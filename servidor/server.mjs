@@ -146,14 +146,28 @@ function crearJugador() {
     //Generar ID unic:
     const playerId = crypto.randomUUID();
 
-    //Posició inicial:
-    const startX = Math.random() * gameConfig.width - 30;
-    const startY = Math.random() * gameConfig.height - 30;
-
     //Assignar equip:
     const equipJugador = assignarEquip();
+
+    let startX, startY;
+    //Posició inicial:
+    do {
+        if (equipJugador === 'equipLila') {
+            startX = Math.random() * gameConfig.areaLila.width - 30;
+            startY = Math.random() * gameConfig.areaLila.height - 30;
+        } else {
+            startX = Math.random() * gameConfig.areaBlau.width + gameConfig.areaBlau.x + 30;
+            startY = Math.random() * gameConfig.areaBlau.height + gameConfig.areaBlau.y + 30;
+        }
+    } while (isPositionOccupied(startX, startY));
     
     return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
+}
+
+function isPositionOccupied(x, y) {
+    return Object.values(players).some(player => {
+        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar si la distancia entre jugadores es menor a 30
+    });
 }
 
 function assignarEquip() {

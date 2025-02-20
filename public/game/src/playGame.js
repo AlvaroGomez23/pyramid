@@ -55,7 +55,15 @@ function crearRoques(rock) {
 }
 
 function crearJugadors(player) {
-    pincell.fillStyle = player.color;
+    if (player.id === playerId) {
+        if (player.equip === 'equipLila') {
+            pincell.fillStyle = 'pink'; // Color rosa para el jugador actual
+        } else if (player.equip === 'equipBlau') {
+            pincell.fillStyle = 'lightblue'; // Color azul claro para el jugador actual
+        }
+    } else {
+        pincell.fillStyle = player.color;
+    }
     pincell.fillRect(player.x, player.y, 30, 30);
 }
 
@@ -77,7 +85,8 @@ window.addEventListener('keydown', (event) => {
         a: 'left',
         s: 'down',
         d: 'right',
-        ' ': 'grab'
+        ' ': 'grab',
+        Enter: 'grab'
     }[event.key];
 
     if (direction && direction !== currentDirection) {
@@ -85,7 +94,7 @@ window.addEventListener('keydown', (event) => {
         ComencarMoviment(direction);
     }
 
-    if (event.key === ' ') {
+    if (event.key === ' ' || event.key === 'Enter') {
         socket.send(JSON.stringify({ type: 'grab', playerId }));
     }
 });
@@ -95,5 +104,5 @@ function ComencarMoviment(direction) {
 
     movementInterval = setInterval(() => {
         socket.send(JSON.stringify({ type: 'move', playerId, direction }));
-    }, 1); 
+    }, 10); 
 }
