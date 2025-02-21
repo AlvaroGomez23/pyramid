@@ -11,6 +11,13 @@ let movementInterval = null; // Guardar el intervalo de movimiento
 let area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' }; // Área verde
 let area2 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 21, 255, 0.74)' }; // Área roja
 
+const camelImage = new Image();
+camelImage.src = 'camel-svgrepo-com.svg'; // Ruta a la imagen del camello
+
+camelImage.onload = () => {
+    console.log('Imagen del camello cargada');
+};
+
 socket.onmessage = (message) => {
     const data = JSON.parse(message.data);
 
@@ -54,49 +61,22 @@ function crearRoques(rock) {
     pincell.fillRect(rock.x, rock.y, 20, 20); // Dibujar roca como cuadrado de 20x20
 }
 
-let camello = new Image();
-camello.src = 'camel-svgrepo-com.svg';
-
-camello.onload = () => {
-    console.log('Imagen del camello cargada');
-};
-
-console.log(camello);
-
 function crearJugadors(player) {
-    if (player.id === playerId) {
-        // Guardar el contexto antes de la transformación
-        pincell.save();
+    const size = 50; // Tamaño de la imagen del camello
+    const halfSize = size / 2;
 
-        if (player.equip === 'equipLila') {
-            // Si la dirección es 'left', reflejar la imagen (espejo)
-            if (currentDirection === 'left') {
-                pincell.translate(player.x + 25, player.y + 25); // Mover el centro de la imagen a (player.x, player.y)
-                pincell.scale(-1, 1); // Reflejar la imagen horizontalmente (espejo)
-                pincell.drawImage(camello, -25, -25, 50, 50); // Dibujar la imagen reflejada
-            } else {
-                // Si no se mueve a la izquierda, dibujar normalmente
-                pincell.drawImage(camello, player.x, player.y, 50, 50);
-            }
+    pincell.save(); // Guardar el estado del canvas
 
-        } else if (player.equip === 'equipBlau') {
-            if (currentDirection === 'left') {
-                pincell.translate(player.x + 25, player.y + 25); // Mover el centro de la imagen a (player.x, player.y)
-                pincell.scale(-1, 1); // Reflejar la imagen horizontalmente (espejo)
-                pincell.drawImage(camello, -25, -25, 50, 50); // Dibujar la imagen reflejada
-            } else {
-                // Si no se mueve a la izquierda, dibujar normalmente
-                pincell.drawImage(camello, player.x, player.y, 50, 50);
-            }
-        }
-
-        // Restaurar el contexto al estado original
-        pincell.restore();
+    if (player.direction === 'left') {
+        pincell.translate(player.x + halfSize, player.y + halfSize);
+        pincell.scale(-1, 1); // Reflejar la imagen horizontalmente (espejo)
+        pincell.drawImage(camelImage, -halfSize, -halfSize, size, size);
     } else {
-        pincell.drawImage(camello, player.x, player.y, 50, 50); // Dibujar el camello normalmente para otros jugadores
+        pincell.drawImage(camelImage, player.x, player.y, size, size);
     }
-}
 
+    pincell.restore(); // Restaurar el estado del canvas
+}
 
 function crearAreaPiramides(area) {
     pincell.fillStyle = area.color;
@@ -136,4 +116,8 @@ function ComencarMoviment(direction) {
     movementInterval = setInterval(() => {
         socket.send(JSON.stringify({ type: 'move', playerId, direction }));
     }, 10); 
+}
+
+function stopMovingPlayer() {
+    if (movementInterval) clearInterval(movementInterval);
 }

@@ -14,6 +14,7 @@ export function movePlayer(player, direction, players, gameConfig) {
     if (!checkCollision({ ...player, x: newX, y: newY }, players)) {
         player.x = newX;
         player.y = newY;
+        player.direction = direction; // Actualizar la dirección del jugador
     } else {
         stopMovingPlayer(player); // Si hay colisión, detener movimiento
     }
