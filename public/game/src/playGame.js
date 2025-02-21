@@ -54,18 +54,49 @@ function crearRoques(rock) {
     pincell.fillRect(rock.x, rock.y, 20, 20); // Dibujar roca como cuadrado de 20x20
 }
 
+let camello = new Image();
+camello.src = 'camel-svgrepo-com.svg';
+
+camello.onload = () => {
+    console.log('Imagen del camello cargada');
+};
+
+console.log(camello);
+
 function crearJugadors(player) {
     if (player.id === playerId) {
+        // Guardar el contexto antes de la transformación
+        pincell.save();
+
         if (player.equip === 'equipLila') {
-            pincell.fillStyle = 'pink'; // Color rosa para el jugador actual
+            // Si la dirección es 'left', reflejar la imagen (espejo)
+            if (currentDirection === 'left') {
+                pincell.translate(player.x + 25, player.y + 25); // Mover el centro de la imagen a (player.x, player.y)
+                pincell.scale(-1, 1); // Reflejar la imagen horizontalmente (espejo)
+                pincell.drawImage(camello, -25, -25, 50, 50); // Dibujar la imagen reflejada
+            } else {
+                // Si no se mueve a la izquierda, dibujar normalmente
+                pincell.drawImage(camello, player.x, player.y, 50, 50);
+            }
+
         } else if (player.equip === 'equipBlau') {
-            pincell.fillStyle = 'lightblue'; // Color azul claro para el jugador actual
+            if (currentDirection === 'left') {
+                pincell.translate(player.x + 25, player.y + 25); // Mover el centro de la imagen a (player.x, player.y)
+                pincell.scale(-1, 1); // Reflejar la imagen horizontalmente (espejo)
+                pincell.drawImage(camello, -25, -25, 50, 50); // Dibujar la imagen reflejada
+            } else {
+                // Si no se mueve a la izquierda, dibujar normalmente
+                pincell.drawImage(camello, player.x, player.y, 50, 50);
+            }
         }
+
+        // Restaurar el contexto al estado original
+        pincell.restore();
     } else {
-        pincell.fillStyle = player.color;
+        pincell.drawImage(camello, player.x, player.y, 50, 50); // Dibujar el camello normalmente para otros jugadores
     }
-    pincell.fillRect(player.x, player.y, 30, 30);
 }
+
 
 function crearAreaPiramides(area) {
     pincell.fillStyle = area.color;
