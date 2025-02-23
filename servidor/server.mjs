@@ -100,38 +100,58 @@ app.get('/pantallaCarrega', (req, res) => {
 
 // WebSockets
 wss.on('connection', (ws) => {
-    // Crear i assignar dades del jugador.
-    const nouJugador = crearJugador();
-    const playerId = nouJugador.id;
-    players[playerId] = nouJugador;
-    
-    // Enviar dades del joc al client.
-    ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
-    ws.send(JSON.stringify({ type: 'connected', playerId }));
-
-    // Enviar dades del joc a tots els clients.
-    broadcastGameState();
-    
+    let playerId;
     ws.on('message', (message) => {
         const data = JSON.parse(message);
-        if (data.type === 'move' && players[data.playerId]) {
-            game.movePlayer(players[data.playerId], data.direction, players, gameConfig);
-            broadcastGameState();
-        } else if (data.type === 'grab' && players[data.playerId]) {
-            game.pickUpRock(players[data.playerId], gameConfig);
-            broadcastGameState();
+
+        //Comporvacio de tipus de jugador.
+        //ADMIN
+        if (data.type === 'admin') {
+            //lo que hace el admin
+            console.log('Admin conectado');
+        } else if (data.type === 'player') { //JUGADOR
+            const nouJugador = game.crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2);
+            playerId = nouJugador.id;
+            players[playerId] = nouJugador;
+            
+            // Enviar dades del joc al client.
+            ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
+            ws.send(JSON.stringify({ type: 'connected', playerId }));
+    
+            // Enviar dades del joc a tots els clients.
+            transmetreEstatJoc();
+        }
+
+        if (data.type === 'start') {
+            console.log('Joc iniciat');
+            modificarEstatJoc(true);
+        } else if (data.type === 'stop') {
+            console.log('Joc aturat');
+            modificarEstatJoc(false);
+        }
+
+        // Tractament de les accions dels jugadors.
+        if (data.type === 'moure' && players[data.playerId]) {
+            game.moureJugador(players[data.playerId], data.direction, players, gameConfig);
+            transmetreEstatJoc();
+        } else if (data.type === 'agafar' && players[data.playerId]) {
+            game.agafarRoca(players[data.playerId], gameConfig);
+            transmetreEstatJoc();
         }
     });
     
     ws.on('close', () => {
-        if (players[playerId].equip === "equipLila") { jugadors_equip_1--; } 
-        else { jugadors_equip_2--; }
+        if (players[playerId].equip === "equipLila") { 
+            jugadors_equip_1--; 
+        } else { 
+            jugadors_equip_2--; 
+        }
         delete players[playerId];
-        broadcastGameState();
+        transmetreEstatJoc();
     });
 });
 
-function broadcastGameState() {
+function transmetreEstatJoc() {
     const state = JSON.stringify({ type: 'update', players, rocks: gameConfig.rocks });
     wss.clients.forEach(client => {
         if (client.readyState === client.OPEN) {
@@ -140,112 +160,17 @@ function broadcastGameState() {
     });
 }
 
-function crearJugador() {
-    console.log('Nuevo jugador conectado!');
+function modificarEstatJoc(estat) {
+    gameConfig.running = estat;
+    const mensaje = estat ? { type: 'startStop', running: true } : { type: 'startStop', running: false };
 
-    //Generar ID unic:
-    const playerId = crypto.randomUUID();
-
-    //Assignar equip:
-    const equipJugador = assignarEquip();
-
-    let startX, startY;
-    //Posició inicial:
-    do {
-        if (equipJugador === 'equipLila') {
-            startX = Math.random() * gameConfig.areaLila.width - 30;
-            startY = Math.random() * gameConfig.areaLila.height - 30;
-        } else {
-            startX = Math.random() * gameConfig.areaBlau.width + gameConfig.areaBlau.x + 30;
-            startY = Math.random() * gameConfig.areaBlau.height + gameConfig.areaBlau.y + 30;
+    // Enviar el mensaje a todos los clientes sobre el estado del juego
+    wss.clients.forEach(client => {
+        if (client.readyState === client.OPEN) {
+            client.send(JSON.stringify(mensaje));
         }
-    } while (isPositionOccupied(startX, startY));
-    
-    return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
-}
-
-function isPositionOccupied(x, y) {
-    return Object.values(players).some(player => {
-        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar si la distancia entre jugadores es menor a 30
     });
 }
-
-function assignarEquip() {
-    //Equips:
-    const EQUIP_1 = "equipLila";
-    const EQUIP_2 = "equipBlau";
-
-    const jugadoresTotales = Object.keys(players).length;
-    console.log(`Total de jugadores conectados: ${jugadoresTotales + 1}`);
-    // Recuerda que la assignacion comienza en 0 por el array :)
-
-    if (jugadoresTotales < 0) {
-        console.log('¡No hay jugadores conectados!');
-        return;
-    }
-
-    if (jugadors_equip_1 === 0 && jugadors_equip_2 === 0) { // Si no hay jugadores en ningun equipo.
-        // Aleatoriament mira quin equip comença:
-        const primerEquip = Math.floor(Math.random() * 2) + 1;
-
-        if (primerEquip === 1) { return equipFinal(EQUIP_1); } 
-        else { return equipFinal(EQUIP_2); }
-
-    } else if (jugadors_equip_1 === jugadors_equip_2) { // Si son iguals, assigna aleatoriament.
-
-        // Aleatoriament mira quin equip comença:
-        const primerEquip = Math.floor(Math.random() * 2) + 1;
-
-        if (primerEquip === 1) { return equipFinal(EQUIP_1); } 
-        else { return equipFinal(EQUIP_2); }
-
-    } else if (jugadors_equip_1 > jugadors_equip_2) { // Si hi ha més jugadors en l'equip 1, assigna al equip 2.
-        return equipFinal(EQUIP_2);
-    } else { // Si hi ha més jugadors en l'equip 2, assigna al equip 1.
-        return equipFinal(EQUIP_1);
-    }
-}
-
-function equipFinal(equipJugador) {
-    if (equipJugador === "equipLila") {
-        console.log('¡El equipo 1 ha sido asignado!');
-        const equipAssignat = equipJugador;
-        jugadors_equip_1++;
-        return equipAssignat;
-    } else {
-        console.log('¡El equipo 2 ha sido asignado!');
-        const equipAssignat = equipJugador;
-        jugadors_equip_2++;
-        return equipAssignat;
-    }
-}
-
-function assignarColor(equipJugador) {
-    //Colors:
-    const COLOR1 = 'purple';
-    const COLOR2 = 'blue';
-
-    if (equipJugador === undefined || equipJugador === null || equipJugador === '') {
-        console.log('¡No se ha asignado ningún color!');
-        return;
-    }
-
-    if (equipJugador === 'equipLila') {
-        console.log('¡El color lila ha sido asignado!');
-        const colorAssignat = COLOR1;
-        return colorAssignat;
-
-    } 
-    
-    if (equipJugador === 'equipBlau') {
-        console.log('¡El color azul ha sido asignado!');
-        const colorAssignat = COLOR2;
-        return colorAssignat;
-    }
-}
-
-//Se tiene que cambiar:
-game.generateRandomRocks(gameConfig);
 
 server.listen(PORT, () => {
     console.log(`Servidor en http://localhost:${PORT}`);
