@@ -20,8 +20,10 @@ function init() {
         const data = JSON.parse(message.data);
     
         if (data.type === 'config') {
-            areaDeJoc.width = data.width + 30;
-            areaDeJoc.height = data.height + 30;
+            areaDeJoc.width = data.width;
+            areaDeJoc.height = data.height;
+            areaDeJoc.width = (areaDeJoc.width + 30);
+            areaDeJoc.height = (areaDeJoc.height + 30);
             rocks = data.rocks || []; // Asegurar que las rocas se reciban
             area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
             area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(0, 128, 255, 0.74)' };
@@ -73,8 +75,6 @@ function init() {
         window.location.href = "index.html";
     };
 }
-
-
 
 function crearAreaDeJoc() {
     pincell.clearRect(0, 0, areaDeJoc.width, areaDeJoc.height);

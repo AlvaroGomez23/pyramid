@@ -29,19 +29,40 @@ function init() {
     };
 
     document.getElementById('startStopBtn').addEventListener('click', () => {
+        const action = document.getElementById('startStopBtn').textContent === 'Engegar' ? 'start' : 'stop';
+        
         const width = document.getElementById('width').value;
         const height = document.getElementById('height').value;
         const floors = document.getElementById('floors').value;
 
-        const action = document.getElementById('startStopBtn').textContent === 'Engegar' ? 'start' : 'stop';
-        
         if (action === 'start') {
             socket.send(JSON.stringify({ type: 'start', width, height, floors }));
         } else if (action === 'stop') {
             socket.send(JSON.stringify({ type: 'stop' }));
         }
     });
-}       
+
+    document.getElementById('width').addEventListener('input', () => {
+        const width = document.getElementById('width').value;
+        const height = document.getElementById('height').value;
+        const floors = document.getElementById('floors').value;
+        socket.send(JSON.stringify({ type: 'config', width, height, floors }));
+    });
+
+    document.getElementById('height').addEventListener('input', () => {
+        const width = document.getElementById('width').value;
+        const height = document.getElementById('height').value;
+        const floors = document.getElementById('floors').value;
+        socket.send(JSON.stringify({ type: 'config', width, height, floors }));
+    });
+
+    document.getElementById('floors').addEventListener('input', () => {
+        const width = document.getElementById('width').value;
+        const height = document.getElementById('height').value;
+        const floors = document.getElementById('floors').value;
+        socket.send(JSON.stringify({ type: 'config', width, height, floors }));
+    });
+}
 
 window.addEventListener('DOMContentLoaded', () => {
     socket = new WebSocket('ws://localhost:8180');

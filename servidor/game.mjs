@@ -2,89 +2,73 @@
 //     return `hsl(${Math.random() * 360}, 100%, 50%)`;
 // }
 
+import { comprovarGuanyadors } from './server.mjs';
+
 // CREAR JUGADOR -------------------------------
 // ------------------------------------------------
 
 export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2) {
     console.log('Nuevo jugador conectado!');
 
-    //Generar ID unic:
+    // Generar ID único:
     const playerId = crypto.randomUUID();
 
-    //Assignar equip:
+    // Asignar equipo:
     const equipJugador = assignarEquip(players, jugadors_equip_1, jugadors_equip_2);
 
     let startX, startY;
-    //Posició inicial:
+    // Posición inicial:
     do {
         if (equipJugador === 'equipLila') {
-            startX = Math.random() * gameConfig.areaLila.width - 30;
-            startY = Math.random() * gameConfig.areaLila.height - 30;
+            startX = Math.random() * (gameConfig.areaLila.width - 30);
+            startY = Math.random() * (gameConfig.areaLila.height - 30);
         } else {
             startX = Math.random() * gameConfig.areaBlau.width + gameConfig.areaBlau.x + 30;
             startY = Math.random() * gameConfig.areaBlau.height + gameConfig.areaBlau.y + 30;
         }
     } while (comprovacioPosicioOcupada(startX, startY, players));
-    
+
     return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
 }
 
-// EQUIPOS: 
-
 function assignarEquip(players, jugadors_equip_1, jugadors_equip_2) {
-    //Equips:
+    // Equipos:
     const EQUIP_1 = "equipLila";
     const EQUIP_2 = "equipBlau";
 
     const jugadoresTotales = Object.keys(players).length;
     console.log(`Total de jugadores conectados: ${jugadoresTotales + 1}`);
-    // Recuerda que la assignacion comienza en 0 por el array :)
 
     if (jugadoresTotales < 0) {
         console.log('¡No hay jugadores conectados!');
         return;
     }
 
-    if (jugadors_equip_1 === 0 && jugadors_equip_2 === 0) { // Si no hay jugadores en ningun equipo.
-        // Aleatoriament mira quin equip comença:
+    if (jugadors_equip_1 === jugadors_equip_2) {
+        // Si los equipos están equilibrados, asignar aleatoriamente
         const primerEquip = Math.floor(Math.random() * 2) + 1;
-
-        if (primerEquip === 1) { return equipFinal(EQUIP_1, jugadors_equip_1, jugadors_equip_2); } 
-        else { return equipFinal(EQUIP_2, jugadors_equip_1, jugadors_equip_2); }
-
-    } else if (jugadors_equip_1 === jugadors_equip_2) { // Si son iguals, assigna aleatoriament.
-
-        // Aleatoriament mira quin equip comença:
-        const primerEquip = Math.floor(Math.random() * 2) + 1;
-
-        if (primerEquip === 1) { return equipFinal(EQUIP_1, jugadors_equip_1, jugadors_equip_2); } 
-        else { return equipFinal(EQUIP_2, jugadors_equip_1, jugadors_equip_2); }
-
-    } else if (jugadors_equip_1 > jugadors_equip_2) { // Si hi ha més jugadors en l'equip 1, assigna al equip 2.
-        return equipFinal(EQUIP_2, jugadors_equip_1, jugadors_equip_2);
-    } else { // Si hi ha més jugadors en l'equip 2, assigna al equip 1.
-        return equipFinal(EQUIP_1, jugadors_equip_1, jugadors_equip_2);
-    }
-}
-
-function equipFinal(equipJugador, jugadors_equip_1, jugadors_equip_2) {
-    if (equipJugador === "equipLila") {
-        console.log('¡El equipo 1 ha sido asignado!');
-        const equipAssignat = equipJugador;
-        jugadors_equip_1++;
-        return equipAssignat;
-    } else {
-        console.log('¡El equipo 2 ha sido asignado!');
-        const equipAssignat = equipJugador;
+        if (primerEquip === 1) {
+            jugadors_equip_1++;
+            return EQUIP_1;
+        } else {
+            jugadors_equip_2++;
+            return EQUIP_2;
+        }
+    } else if (jugadors_equip_1 > jugadors_equip_2) {
+        // Si hay más jugadores en el equipo 1, asignar al equipo 2
         jugadors_equip_2++;
-        return equipAssignat;
+        return EQUIP_2;
+    } else if (jugadors_equip_2 > jugadors_equip_1) {
+        // Si hay más jugadores en el equipo 2, asignar al equipo 1
+        jugadors_equip_1++;
+        return EQUIP_1;
     }
 }
 
 // COLOR PER EQUIP:
 
 function assignarColor(equipJugador) {
-    //Colors:
+    // Colores:
     const COLOR1 = 'purple';
     const COLOR2 = 'blue';
 
@@ -95,15 +79,12 @@ function assignarColor(equipJugador) {
 
     if (equipJugador === 'equipLila') {
         console.log('¡El color lila ha sido asignado!');
-        const colorAssignat = COLOR1;
-        return colorAssignat;
+        return COLOR1;
+    }
 
-    } 
-    
     if (equipJugador === 'equipBlau') {
         console.log('¡El color azul ha sido asignado!');
-        const colorAssignat = COLOR2;
-        return colorAssignat;
+        return COLOR2;
     }
 }
 
@@ -194,7 +175,7 @@ export function agafarRoca(player, gameConfig) {
             console.log('¡Piedra entregada en el área!');
             if (player.equip === 'equipLila') {
                 gameConfig.puntsLila++;
-                player.color = 'purple'; // Cambiar el color del jugador cuando suelta la roca en el area
+                player.color = 'purple'; // Cambiar el color del jugador cuando suelta la roca en el area   
             } else if (player.equip === 'equipBlau') {
                 gameConfig.puntsBlau++;
                 player.color = 'blue'; // Cambiar el color del jugador
@@ -205,6 +186,7 @@ export function agafarRoca(player, gameConfig) {
             if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
                 generarRoquesFaltants(gameConfig); // Llamar a esta función para generar las rocas que faltan
             }
+            comprovarGuanyadors(gameConfig);
         } else {
             // Si no está en el área, soltar la piedra en la posición actual
             gameConfig.rocks.push({

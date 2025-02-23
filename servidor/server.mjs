@@ -98,46 +98,120 @@ app.get('/pantallaCarrega', (req, res) => {
 // ------------------
 // --- JUEGO --------
 
+// Función para verificar si una posición está ocupada
+function reposicionamentJugador(x, y, players) {
+    return Object.values(players).some(player => {
+        let distancia = Math.hypot(player.x - x, player.y - y);
+        return distancia < 50; // Aumentamos un poco la distancia de seguridad
+    });
+}
+
 // WebSockets
 wss.on('connection', (ws) => {
     let playerId;
+    let isAdmin = false;
+
     ws.on('message', (message) => {
         const data = JSON.parse(message);
 
-        //Comporvacio de tipus de jugador.
-        //ADMIN
+        // Comprobación de tipo de jugador.
+        // ADMIN
         if (data.type === 'admin') {
-            //lo que hace el admin
+            isAdmin = true;
             console.log('Admin conectado');
-        } else if (data.type === 'player') { //JUGADOR
+            // Enviar datos del juego al cliente.
+            ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
+            ws.send(JSON.stringify({ type: 'connected', playerId }));
+
+            // Enviar datos del juego a todos los clientes.
+            transmetreEstatJoc();
+        } else if (data.type === 'player') { // JUGADOR
             const nouJugador = game.crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2);
             playerId = nouJugador.id;
             players[playerId] = nouJugador;
-            
-            // Enviar dades del joc al client.
+
+            // Actualizar los contadores de jugadores
+            if (nouJugador.equip === 'equipLila') {
+                jugadors_equip_1++;
+            } else {
+                jugadors_equip_2++;
+            }
+
+            // Enviar datos del juego al cliente.
             ws.send(JSON.stringify({ type: 'config', ...gameConfig }));
             ws.send(JSON.stringify({ type: 'connected', playerId }));
-    
-            // Enviar dades del joc a tots els clients.
+
+            // Enviar datos del juego a todos los clientes.
             transmetreEstatJoc();
         }
 
         if (data.type === 'start') {
-            console.log('Joc iniciat');
+            console.log('Juego iniciado');
+            gameConfig.running = true;
+            gameConfig.rocks = [];
 
+            game.generarRoquesGameArea(gameConfig);
+            modificarEstatJoc(true);
+            console.log(gameConfig.height);
+
+            transmetreEstatJoc();
+
+            // Enviar los valores actualizados del campo de juego a todos los clientes
+            wss.clients.forEach(client => {
+                if (client.readyState === client.OPEN) {
+                    client.send(JSON.stringify({ type: 'config', ...gameConfig }));
+                }
+            });
+        } else if (data.type === 'stop') {
+            console.log('Juego detenido');
+            modificarEstatJoc(false);
+            gameConfig.rocks = [];
+            gameConfig.puntsBlau = 0;
+            gameConfig.puntsLila = 0;
+            
+        } else if (data.type === 'config') {
             gameConfig.width = data.width;
             gameConfig.height = data.height;
             gameConfig.floors = data.floors;
 
-            modificarEstatJoc(true);
-            console.log(gameConfig.height);
+            gameConfig.areaBlau.x = gameConfig.width - gameConfig.areaBlau.width;
+            gameConfig.areaBlau.y = gameConfig.height - gameConfig.areaBlau.height;
+
+            Object.values(players).forEach(player => {
+                let attempts = 0;
+                let newX, newY;
+                if (player.x > gameConfig.width || player.y > gameConfig.height) {
+                    do {
+                        newX = Math.random() * (gameConfig.width - 30);
+                        newY = Math.random() * (gameConfig.height - 30);
+                        attempts++;
+                    } while (reposicionamentJugador(newX, newY, players) && attempts < 100); // Limitar el número de intentos
+                    if (attempts < 100) {
+                        player.x = newX;
+                        player.y = newY;
+                    } else {
+                        console.log('No se pudo reposicionar al jugador después de 100 intentos');
+                    }
+                }
+            });
+
+            
+            if (gameConfig.running) {
+                gameConfig.rocks = [];
+                game.generarRoquesGameArea(gameConfig);
+            }
+
+            wss.clients.forEach(client => {
+                if (client.readyState === client.OPEN) {
+                    client.send(JSON.stringify({ type: 'config', ...gameConfig }));
+                }
+            });
+
+            
             transmetreEstatJoc();
-        } else if (data.type === 'stop') {
-            console.log('Joc aturat');
-            modificarEstatJoc(false);
         }
 
-        // Tractament de les accions dels jugadors.
+        // Tratamiento de las acciones de los jugadores.
         if (data.type === 'moure' && players[data.playerId]) {
             game.moureJugador(players[data.playerId], data.direction, players, gameConfig);
             transmetreEstatJoc();
@@ -146,15 +220,22 @@ wss.on('connection', (ws) => {
             transmetreEstatJoc();
         }
     });
-    
+
     ws.on('close', () => {
-        if (players[playerId].equip === "equipLila") { 
-            jugadors_equip_1--; 
-        } else { 
-            jugadors_equip_2--; 
+        if (isAdmin) {
+            console.log('Admin desconectado');
+            // Manejar la desconexión del administrador si es necesario
+        } else {
+            if (players[playerId]) {
+                if (players[playerId].equip === "equipLila") {
+                    jugadors_equip_1--;
+                } else {
+                    jugadors_equip_2--;
+                }
+                delete players[playerId];
+                transmetreEstatJoc();
+            }
         }
-        delete players[playerId];
-        transmetreEstatJoc();
     });
 });
 
@@ -166,27 +247,6 @@ function transmetreEstatJoc() {
         }
     });
 }
-
-//INTENTA HACER UN TRANSMETRE ESTAT GENERAL (INTENTA PASARLE EL TIPO "UPDATE, CONFIG, STARTSTOP" PARA NO TENER DUPLICAOS Y Q SEA MAS GENERICO")
-// function transmetreEstatJocProva(type) {
-//     const state = {
-//         type: type,
-//         players: players,
-//         rocks: gameConfig.rocks,
-//         width: gameConfig.width,
-//         height: gameConfig.height,
-//         floors: gameConfig.floors,
-//         running: gameConfig.running,
-//         puntsBlau: gameConfig.puntsBlau,
-//         puntsLila: gameConfig.puntsLila
-//     };
-
-//     wss.clients.forEach(client => {
-//         if (client.readyState === client.OPEN) {
-//             client.send(state);
-//         }
-//     });
-// }
 
 function modificarEstatJoc(estat) {
     gameConfig.running = estat;
@@ -200,8 +260,23 @@ function modificarEstatJoc(estat) {
     });
 }
 
-function modificarDadesJoc(estat) {
+export function comprovarGuanyadors() {
+    let guanyador = null;
+    if (gameConfig.puntsBlau >= 1) {
+        guanyador = 'equipBlau';
+    } else if (gameConfig.puntsLila >= 1) {
+        guanyador = 'equipLila';
+    }
 
+    if (guanyador) {
+        console.log(`¡${guanyador} ha ganado!`);
+        // Aquí puedes agregar lógica adicional para manejar el final del juego
+        gameConfig.running = false;
+        gameConfig.rocks = [];
+        gameConfig.puntsBlau = 0;
+        gameConfig.puntsLila = 0;
+        transmetreEstatJoc();
+    }
 }
 
 server.listen(PORT, () => {
