@@ -29,8 +29,17 @@ function init() {
     };
 
     document.getElementById('startStopBtn').addEventListener('click', () => {
+        const width = document.getElementById('width').value;
+        const height = document.getElementById('height').value;
+        const floors = document.getElementById('floors').value;
+
         const action = document.getElementById('startStopBtn').textContent === 'Engegar' ? 'start' : 'stop';
-        socket.send(JSON.stringify({ type: action }));
+        
+        if (action === 'start') {
+            socket.send(JSON.stringify({ type: 'start', width, height, floors }));
+        } else if (action === 'stop') {
+            socket.send(JSON.stringify({ type: 'stop' }));
+        }
     });
 }       
 

@@ -124,7 +124,14 @@ wss.on('connection', (ws) => {
 
         if (data.type === 'start') {
             console.log('Joc iniciat');
+
+            gameConfig.width = data.width;
+            gameConfig.height = data.height;
+            gameConfig.floors = data.floors;
+
             modificarEstatJoc(true);
+            console.log(gameConfig.height);
+            transmetreEstatJoc();
         } else if (data.type === 'stop') {
             console.log('Joc aturat');
             modificarEstatJoc(false);
@@ -160,6 +167,27 @@ function transmetreEstatJoc() {
     });
 }
 
+//INTENTA HACER UN TRANSMETRE ESTAT GENERAL (INTENTA PASARLE EL TIPO "UPDATE, CONFIG, STARTSTOP" PARA NO TENER DUPLICAOS Y Q SEA MAS GENERICO")
+// function transmetreEstatJocProva(type) {
+//     const state = {
+//         type: type,
+//         players: players,
+//         rocks: gameConfig.rocks,
+//         width: gameConfig.width,
+//         height: gameConfig.height,
+//         floors: gameConfig.floors,
+//         running: gameConfig.running,
+//         puntsBlau: gameConfig.puntsBlau,
+//         puntsLila: gameConfig.puntsLila
+//     };
+
+//     wss.clients.forEach(client => {
+//         if (client.readyState === client.OPEN) {
+//             client.send(state);
+//         }
+//     });
+// }
+
 function modificarEstatJoc(estat) {
     gameConfig.running = estat;
     const mensaje = estat ? { type: 'startStop', running: true } : { type: 'startStop', running: false };
@@ -170,6 +198,10 @@ function modificarEstatJoc(estat) {
             client.send(JSON.stringify(mensaje));
         }
     });
+}
+
+function modificarDadesJoc(estat) {
+
 }
 
 server.listen(PORT, () => {
