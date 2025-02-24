@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrador - OnlineGames</title>
+    <link rel="stylesheet" href="css/general.css">
+    <link rel="stylesheet" href="css/playGame.css">
     <script src="src/adminGame.js"></script>
 </head>
 <body>
     <h1>Administrador - Configura el Joc</h1>
-    <button id="startStopBtn">Engegar</button>
-    <div>
+    <div class="container-buttons">
+        <button id="startStopBtn">Engegar</button>
         <label for="width">Amplada:</label>
         <input id="width" type="number" min="1">
         <label for="height">Altura:</label>
@@ -17,6 +19,10 @@
         <label for="floors">Pisos:</label>
         <input id="floors" type="number" min="1">
     </div>
-    <canvas id="areaDeJoc"></canvas>
+    <div class="container">
+        <div class="game-area">
+            <canvas id="areaDeJoc"></canvas>
+        </div>
+    </div>
 </body>
 </html>

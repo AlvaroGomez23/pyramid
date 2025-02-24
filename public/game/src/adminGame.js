@@ -11,8 +11,20 @@ function init() {
             document.getElementById('width').value = data.width;
             document.getElementById('height').value = data.height;
             document.getElementById('floors').value = data.floors;
+
             const btn = document.getElementById('startStopBtn');
             btn.textContent = data.running ? 'Aturar' : 'Engegar';
+
+            // Actualizar el juego
+            players = data.players;
+            rocks = data.rocks || [];
+            gameSettings = { width: data.width, height: data.height, floors: data.floors, running: data.running };
+
+            // Ajustar tamaño del canvas
+            areaDeJoc.width = data.width;
+            areaDeJoc.height = data.height;
+
+            crearAreaDeJoc();
         }
     };
     
