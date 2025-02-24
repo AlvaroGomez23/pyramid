@@ -83,3 +83,14 @@ body {
 .container-buttons button:hover {
     background-color: #806767;
 }
+
+.container-puntuacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #eae1cb;
+    color: #482d2d;
+    font-size: 1rem;
+    padding: 20px;
+    border-radius: 20px;
+}

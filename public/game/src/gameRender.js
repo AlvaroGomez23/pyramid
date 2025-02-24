@@ -1,3 +1,17 @@
+const camelloAzul = new Image();
+const camelloLila = new Image();
+const camelloAzulFuerte = new Image();
+const camelloLilaFuerte = new Image();
+const camelloConPiedraAzulFlojo = new Image();
+const camelloConPiedraLilaFlojo = new Image();
+
+camelloAzul.src = '../img/camelloAzulFlojo.svg';
+camelloLila.src = '../img/camelloLilaFlojo.svg';
+camelloAzulFuerte.src = '../img/camelloAzulFuerte.svg';
+camelloLilaFuerte.src = '../img/camelloLilaFuerte.svg';
+camelloConPiedraAzulFlojo.src = '../img/camelloAzulFlojoConPiedra.svg';
+camelloConPiedraLilaFlojo.src = '../img/camelloLilaFlojoConPiedra.svg';
+
 export function crearAreaDeJoc(pincell, areaDeJoc, area1, area2, rocks, players, playerId) {
     pincell.clearRect(0, 0, areaDeJoc.width, areaDeJoc.height);
 
@@ -27,15 +41,33 @@ function crearRoques(rock, pincell) {
 }
 
 function crearJugadors(player, pincell, playerId) {
+    const size = 50; // Tamaño de la imagen del camello.
+    const halfSize = size / 2;
+
+    pincell.save(); // Guardar el estado del canvas.
+
+    // Determinar la imagen del camello.
+    let camello;
     if (player.id === playerId) {
-        if (player.equip === 'equipLila') {
-            pincell.fillStyle = 'pink'; // Color rosa clar per detectar el jugador actual.
-        } else if (player.equip === 'equipBlau') {
-            pincell.fillStyle = 'lightblue'; // Color blau clar per detectar el jugador actual.
+        if (player.piedra) {
+            camello = player.equip === 'equipBlau' ? camelloConPiedraAzulFlojo : camelloConPiedraLilaFlojo;
+        } else {
+            camello = player.equip === 'equipBlau' ? camelloAzul : camelloLila;
         }
+        
     } else {
-        pincell.fillStyle = player.color;
+        camello = player.equip === 'equipBlau' ? camelloAzulFuerte : camelloLilaFuerte;
     }
-    pincell.fillRect(player.x, player.y, 30, 30);
+
+    // Dibujar el camello reflejado si va a la izquierda.
+    if (player.direction === 'left') {
+        pincell.translate(player.x + halfSize, player.y + halfSize);
+        pincell.scale(-1, 1);
+        pincell.drawImage(camello, -halfSize, -halfSize, size, size);
+    } else {
+        pincell.drawImage(camello, player.x, player.y, size, size);
+    }
+
+    pincell.restore();
 }
 
