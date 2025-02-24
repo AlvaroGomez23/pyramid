@@ -10,8 +10,6 @@ import { dirname } from 'path';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import crypto from 'crypto';
-import e from 'express';
 
 const app = express();
 const PORT_HTTP = 8080; // Puerto para el servidor HTTP
@@ -270,19 +268,24 @@ function modificarEstatJoc(estat) {
 
 export function comprovarGuanyadors() {
     let guanyador = null;
-    if (gameConfig.puntsBlau >= 1) {
+    const PUNTUACIO_TOTAL = 10;
+
+    if (gameConfig.puntsBlau >= PUNTUACIO_TOTAL) {
         guanyador = 'equipBlau';
-    } else if (gameConfig.puntsLila >= 1) {
+    } else if (gameConfig.puntsLila >= PUNTUACIO_TOTAL) {
         guanyador = 'equipLila';
     }
 
     if (guanyador) {
         console.log(`¡${guanyador} ha ganado!`);
-        // Aquí puedes agregar lógica adicional para manejar el final del juego
-        gameConfig.running = false;
-        gameConfig.rocks = [];
-        gameConfig.puntsBlau = 0;
-        gameConfig.puntsLila = 0;
-        transmetreEstatJoc();
+        resetejarJoc();
     }
+}
+
+export function resetejarJoc() {
+    gameConfig.rocks = [];
+    gameConfig.puntsBlau = 0;
+    gameConfig.puntsLila = 0;
+    gameConfig.running = false;
+    transmetreEstatJoc();
 }
