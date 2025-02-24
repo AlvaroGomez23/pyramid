@@ -19,7 +19,8 @@ function init() {
     socket.onmessage = (message) => {
         const data = JSON.parse(message.data);
     
-        if (data.type === 'config') {
+        if (data.type === 'update') {
+            players = data.players;
             areaDeJoc.width = data.width;
             areaDeJoc.height = data.height;
             areaDeJoc.width = (areaDeJoc.width + 30);
@@ -27,14 +28,11 @@ function init() {
             rocks = data.rocks || []; // Asegurar que las rocas se reciban
             area1 = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
             area2 = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(0, 128, 255, 0.74)' };
+            crearAreaDeJoc();
         }
+        
         if (data.type === 'connected') {
             playerId = data.playerId;
-        }
-        if (data.type === 'update') {
-            players = data.players;
-            rocks = data.rocks || []; // Actualizar rocas en cada frame
-            crearAreaDeJoc();
         }
     };
 

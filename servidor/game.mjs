@@ -1,9 +1,3 @@
-// export function getRandomColor() {
-//     return `hsl(${Math.random() * 360}, 100%, 50%)`;
-// }
-
-import { comprovarGuanyadors } from './server.mjs';
-
 // CREAR JUGADOR -------------------------------
 // ------------------------------------------------
 
@@ -30,6 +24,8 @@ export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equ
 
     return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
 }
+
+// EQUIPS
 
 function assignarEquip(players, jugadors_equip_1, jugadors_equip_2) {
     // Equipos:
@@ -223,7 +219,7 @@ export function agafarRoca(player, gameConfig) {
     }
 }
 
-function cambiarColor(player, gameConfig) {
+function cambiarColor(player) {
 
     if (player.piedra) {
         console.log('Aqui')
@@ -255,4 +251,23 @@ function comprovarGameAreaRoca(player, area) {
         player.y >= area.y &&
         player.y <= area.y + area.height
     );
+}
+
+// GUANYADOR -----------------------------
+// ---------------------------------------
+
+function comprovarGuanyadors(gameConfig) {
+    let guanyador = null;
+    const PUNTUACIO_TOTAL = 10;
+
+    if (gameConfig.puntsBlau >= PUNTUACIO_TOTAL) {
+        guanyador = 'equipBlau';
+    } else if (gameConfig.puntsLila >= PUNTUACIO_TOTAL) {
+        guanyador = 'equipLila';
+    }
+
+    if (guanyador) {
+        console.log(`¡${guanyador} ha ganado!`);
+        resetejarJoc();
+    }
 }

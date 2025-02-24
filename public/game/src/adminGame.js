@@ -7,12 +7,10 @@ function init() {
     
     socket.onmessage = (message) => {
         const data = JSON.parse(message.data);
-        if (data.type === 'config') {
+        if (data.type === 'update') {
             document.getElementById('width').value = data.width;
             document.getElementById('height').value = data.height;
             document.getElementById('floors').value = data.floors;
-        }
-        if (data.type === 'startStop') {
             const btn = document.getElementById('startStopBtn');
             btn.textContent = data.running ? 'Aturar' : 'Engegar';
         }
