@@ -161,7 +161,7 @@ wss.on('connection', (ws) => {
             modificarEstatJoc(true);
             console.log(gameConfig.height);
 
-            transmetreEstatJoc();
+            
 
             // Enviar los valores actualizados del campo de juego a todos los clientes
             wss.clients.forEach(client => {
@@ -169,6 +169,7 @@ wss.on('connection', (ws) => {
                     client.send(JSON.stringify({ type: 'config', ...gameConfig }));
                 }
             });
+            transmetreEstatJoc();
         } else if (data.type === 'stop') {
             console.log('Juego detenido');
             modificarEstatJoc(false);
