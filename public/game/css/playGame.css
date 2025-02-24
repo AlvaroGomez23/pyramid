@@ -10,7 +10,6 @@ body {
 
 .container {
     display: flex;
-    width: 100%;
     border: 2px solid black;
 }
 
@@ -25,20 +24,19 @@ body {
     background-color: #e9c46a;
 }
 
-.players-panel {
-    flex: 1;
-    padding: 20px;
-    background-color: #333;
-    color: white;
-}
-
-#playersList {
-    margin-top: 10px;
-}
-
 .player-box {
     width: 30px;
     height: 30px;
     display: inline-block;
     margin: 5px;
+}
+
+.container-buttons {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e9c46a;
+    padding: 20px;
+    border-radius: 20px;
 }
