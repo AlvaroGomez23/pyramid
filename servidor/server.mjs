@@ -14,7 +14,8 @@ import crypto from 'crypto';
 import e from 'express';
 
 const app = express();
-const PORT = 8180;
+const PORT_HTTP = 8080; // Puerto para el servidor HTTP
+const PORT_WS = 8180; // Puerto para el servidor WebSockets
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(__filename);
@@ -27,7 +28,13 @@ app.use(passport.session());
 
 // Servidor HTTP
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+server.listen(PORT_HTTP, () => {
+    console.log(`Servidor HTTP en http://localhost:${PORT_HTTP}`);
+});
+
+// Servidor WebSockets
+const wss = new WebSocketServer({ port: PORT_WS });
+console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth
 const credencials = JSON.parse(fs.readFileSync(path.join(_dirname, '/Oauth/credencialsOauth.json')));
@@ -54,7 +61,7 @@ passport.use(
         {
             clientID: credencials.clientId,
             clientSecret: credencials.clientSecret,
-            callbackURL: `http://localhost:${PORT}/auth/google/callback`,
+            callbackURL: `http://localhost:${PORT_HTTP}/auth/google/callback`,
         },
         (accessToken, refreshToken, profile, done) => {
             return done(null, profile);
@@ -224,7 +231,7 @@ wss.on('connection', (ws) => {
     ws.on('close', () => {
         if (isAdmin) {
             console.log('Admin desconectado');
-            // Manejar la desconexión del administrador si es necesario
+            // Manejar la desconexión del administrador
         } else {
             if (players[playerId]) {
                 if (players[playerId].equip === "equipLila") {
@@ -278,7 +285,3 @@ export function comprovarGuanyadors() {
         transmetreEstatJoc();
     }
 }
-
-server.listen(PORT, () => {
-    console.log(`Servidor en http://localhost:${PORT}`);
-});

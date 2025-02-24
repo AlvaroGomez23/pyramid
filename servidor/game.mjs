@@ -212,6 +212,7 @@ export function agafarRoca(player, gameConfig) {
 
             if (isColliding) {
                 console.log('¡Recogiste una piedra!');
+                cambiarColor(player, gameConfig);
                 player.piedra = true; // Marcar al jugador como que tiene la roca
                 player.color = 'black'; // Aqui es cuando lleva una piedra, se pone negro pero hay que cambiarlo dependiendo del equipo
                 pickedUp = true; // Marcar que ya recogió una piedra
@@ -220,6 +221,15 @@ export function agafarRoca(player, gameConfig) {
             return true; // Mantener la roca
         });
     }
+}
+
+function cambiarColor(player, gameConfig) {
+
+    if (player.piedra) {
+        console.log('Aqui')
+        player.color = 'black'
+    }
+
 }
 
 function comprovarRocaAgafada(player, gameConfig) {
