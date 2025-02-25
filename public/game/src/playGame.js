@@ -96,7 +96,7 @@ function comencarMoviment(direction) {
 
     movementInterval = setInterval(() => {
         socket.send(JSON.stringify({ type: 'moure', playerId, direction }));
-    }, 100);
+    }, 50);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
