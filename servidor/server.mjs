@@ -13,7 +13,7 @@ import http from 'http';
 
 const app = express();
 const PORT_HTTP = 8080; // Puerto para el servidor HTTP.
-const PORT_WS = 8080; // Puerto para el servidor WebSockets.
+const PORT_WS = 8180; // Puerto para el servidor WebSockets.
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(__filename);
@@ -26,12 +26,12 @@ app.use(passport.session());
 
 // Servidor HTTP.
 const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 server.listen(PORT_HTTP, () => {
     console.log(`Servidor HTTP en http://localhost:${PORT_HTTP}`);
 });
 
-// Servidor WebSockets.
-const wss = new WebSocketServer({ server });
+
 console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth.
