@@ -47,6 +47,15 @@ function init() {
         if (data.type === 'connected') {
             playerId = data.playerId;
         }
+
+        if (data.type === 'end') {
+            const guanyador = data.guanyador;
+            if (guanyador === 'equipBlau') {
+                alert("El equip blau ha guanyat!");
+            } else if (guanyador === 'equipLila') {
+                alert("El equip lila ha guanyat!");
+            }
+        }
     };
 
     // Manejo del movimiento automático

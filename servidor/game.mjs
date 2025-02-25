@@ -1,6 +1,6 @@
 // CREAR JUGADOR -------------------------------
 // ------------------------------------------------
-import { resetejarJoc } from "./server.mjs";
+import { resetejarJoc, transmetreEstatJoc } from "./server.mjs";
 
 
 export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2) {
@@ -253,6 +253,7 @@ function comprovarGuanyadors(gameConfig) {
     }
 
     if (guanyador) {
+        transmetreEstatJoc('end', guanyador);
         resetejarJoc();
     }
 }

@@ -26,12 +26,12 @@ app.use(passport.session());
 
 // Servidor HTTP.
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
 server.listen(PORT_HTTP, () => {
     console.log(`Servidor HTTP en http://localhost:${PORT_HTTP}`);
 });
 
 
+const wss = new WebSocketServer({ port: PORT_WS });
 console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth.
@@ -228,7 +228,7 @@ wss.on('connection', (ws) => {
 });
 
 //Transmetre l'estat del joc.
-function transmetreEstatJoc(type) {
+export function transmetreEstatJoc(type, guanyador = null) {
     const state = JSON.stringify({
         type: type,
         players: players,
@@ -240,7 +240,8 @@ function transmetreEstatJoc(type) {
         areaBlau: gameConfig.areaBlau,
         areaLila: gameConfig.areaLila,
         puntsBlau: gameConfig.puntsBlau,
-        puntsLila: gameConfig.puntsLila
+        puntsLila: gameConfig.puntsLila,
+        guanyador: guanyador
     });
 
     wss.clients.forEach(client => {
