@@ -26,12 +26,12 @@ app.use(passport.session());
 
 // Servidor HTTP.
 const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 server.listen(PORT_HTTP, () => {
     console.log(`Servidor HTTP en http://localhost:${PORT_HTTP}`);
 });
 
-// Servidor WebSockets.
-const wss = new WebSocketServer({ port: PORT_WS });
+
 console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth.
