@@ -101,7 +101,7 @@ let movementIntervals = {}; // Almacena los intervalos de movimiento de cada jug
 
 
 export function moureJugador(player, direction, players, gameConfig) {
-    const step = 1;
+    const step = 3.5;
     let newX = player.x;
     let newY = player.y;
 
