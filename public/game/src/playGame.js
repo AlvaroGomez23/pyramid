@@ -37,18 +37,13 @@ function init() {
 
             gameRender.crearAreaDeJoc(pincell, areaDeJoc, areaLila, areaBlava, rocks, players, playerId, data.puntsLila, data.puntsBlau);
 
-            if (data.puntsBlau == 10) {
-                alert("El equip blau ha guanyat!");
-            } else if (data.puntsLila == 10) {
-                alert("El equip lila ha guanyat!");
-            }
         }
         
         if (data.type === 'connected') {
             playerId = data.playerId;
         }
 
-        if (data.type === 'end') {
+        if (data.type === 'acabar') {
             const guanyador = data.guanyador;
             if (guanyador === 'equipBlau') {
                 alert("El equip blau ha guanyat!");
