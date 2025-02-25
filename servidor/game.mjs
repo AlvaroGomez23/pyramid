@@ -1,19 +1,19 @@
-// CREAR JUGADOR -------------------------------
+// JUGADOR -------------------------------
 // ------------------------------------------------
 import { resetejarJoc, transmetreEstatJoc } from "./server.mjs";
-
 
 export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2) {
     console.log('Nuevo jugador conectado!');
 
-    // Generar un id unic
+    // Generar un id unic:
     const playerId = crypto.randomUUID();
 
-    // Assignar l'equip
+    // Assignar l'equip:
     const equipJugador = assignarEquip(players, jugadors_equip_1, jugadors_equip_2);
 
+    // Posició incial:
     let startX, startY;
-    // Posició incial
+    
     do {
         if (equipJugador === 'equipLila') {
             startX = Math.random() * (gameConfig.areaLila.width - 30);
@@ -86,12 +86,19 @@ function assignarColor(equipJugador) {
 }
 
 // Comporvació de posició ocupada:
-
 function comprovacioPosicioOcupada(x, y, players) {
     return Object.values(players).some(player => {
-        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar que la distancia sigui major a 30 per que no quedin 
+        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar que la distancia sigui major a 30 per que no quedin jugadors un sobre l'altre.
     });
 }
+
+export function reposicionamentJugador(x, y, players) {
+    return Object.values(players).some(player => {
+        let distancia = Math.hypot(player.x - x, player.y - y);
+        return distancia < 50; // Aumentamos la distanica de seguridad.
+    });
+}
+
 
 // MOVIMENT JUGADOR -------------------------------
 // ------------------------------------------------
@@ -116,7 +123,7 @@ export function moureJugador(player, direction, players, gameConfig) {
         player.x = newX;
         player.y = newY;
     } else {
-        pararMoureJugador(player); // En cas de que dos jugadors colisionin es para el seu moviment
+        pararMoureJugador(player); // En cas de que dos jugadors colisionin es para el seu moviment.
     }
 
     comprovarRocaAgafada(player, gameConfig);
@@ -243,7 +250,7 @@ function comprovarGameAreaRoca(player, area) {
 
 function comprovarGuanyadors(gameConfig) {
     let guanyador = null;
-    const PUNTUACIO_TOTAL = 1;
+    const PUNTUACIO_TOTAL = 10;
 
     if (gameConfig.puntsBlau >= PUNTUACIO_TOTAL) {
         guanyador = 'equipBlau';

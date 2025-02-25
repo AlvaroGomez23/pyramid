@@ -175,7 +175,7 @@ wss.on('connection', (ws) => {
                         newX = Math.random() * (gameConfig.width - 30);
                         newY = Math.random() * (gameConfig.height - 30);
                         attempts++;
-                    } while (reposicionamentJugador(newX, newY, players) && attempts < 100); // Limitar el número de intentos
+                    } while (game.reposicionamentJugador(newX, newY, players) && attempts < 100); // Limitar el número de intentos
                     if (attempts < 100) {
                         player.x = newX;
                         player.y = newY;
@@ -212,7 +212,7 @@ wss.on('connection', (ws) => {
     ws.on('close', () => {
         if (isAdmin) {
             console.log('Admin desconectado');
-            // Manejar la desconexión del administrador
+            //Admin desconectat
         } else {
             if (players[playerId]) {
                 if (players[playerId].equip === "equipLila") {
@@ -257,12 +257,4 @@ export function resetejarJoc() {
     gameConfig.puntsLila = 0;
     gameConfig.running = false;
     transmetreEstatJoc('update');
-}
-
-// Función para verificar si una posición está ocupada
-function reposicionamentJugador(x, y, players) {
-    return Object.values(players).some(player => {
-        let distancia = Math.hypot(player.x - x, player.y - y);
-        return distancia < 50; // Aumentamos un poco la distancia de seguridad
-    });
 }
