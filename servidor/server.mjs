@@ -13,7 +13,7 @@ import http from 'http';
 
 const app = express();
 const PORT_HTTP = process.env.PORT || 8080; // Usar el puerto dinámico proporcionado por Railway o 8080 como fallback.
-const PORT_WS = process.env.PORT_WS || 8080; // Para el servidor WebSockets.
+
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(__filename);
