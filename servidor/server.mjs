@@ -179,8 +179,6 @@ wss.on('connection', (ws) => {
                     if (attempts < 100) {
                         player.x = newX;
                         player.y = newY;
-                    } else {
-                        console.log('No se pudo reposicionar al jugador después de 100 intentos');
                     }
                 }
             });
@@ -253,7 +251,7 @@ function transmetreEstatJoc(type) {
     });
 }
 
-function resetejarJoc() {
+export function resetejarJoc() {
     gameConfig.rocks = [];
     gameConfig.puntsBlau = 0;
     gameConfig.puntsLila = 0;

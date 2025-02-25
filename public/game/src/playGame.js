@@ -52,6 +52,7 @@ function init() {
     window.addEventListener('keydown', (event) => {
         if (!playerId) return;
 
+        event.preventDefault();
         const direction = {
             ArrowLeft: 'left',
             ArrowRight: 'right',
@@ -89,9 +90,13 @@ function init() {
 function comencarMoviment(direction) {
     if (movementInterval) clearInterval(movementInterval);
 
+    if (playerId && players[playerId]) {
+        players[playerId].direction = direction; // Actualiza la dirección del jugador en el objeto players
+    }
+
     movementInterval = setInterval(() => {
         socket.send(JSON.stringify({ type: 'moure', playerId, direction }));
-    }, 10); // Reducir la frecuencia de los mensajes de movimiento a cada 50ms
+    }, 10);
 }
 
 window.addEventListener('DOMContentLoaded', () => {

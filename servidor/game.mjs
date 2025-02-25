@@ -1,5 +1,7 @@
 // CREAR JUGADOR -------------------------------
 // ------------------------------------------------
+import { resetejarJoc } from "./server.mjs";
+
 
 export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2) {
     console.log('Nuevo jugador conectado!');
@@ -22,7 +24,7 @@ export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equ
         }
     } while (comprovacioPosicioOcupada(startX, startY, players));
 
-    return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false };
+    return { id: playerId, x: startX, y: startY, equip: equipJugador, color: assignarColor(equipJugador), piedra: false, direction: '' };
 }
 
 // EQUIPS
@@ -103,6 +105,8 @@ export function moureJugador(player, direction, players, gameConfig) {
     let newX = player.x;
     let newY = player.y;
 
+    player.direction = direction;
+
     if (direction === 'left') newX = Math.max(0, player.x - step);
     if (direction === 'right') newX = Math.min(gameConfig.width, player.x + step);
     if (direction === 'up') newY = Math.max(0, player.y - step);
@@ -171,10 +175,8 @@ export function agafarRoca(player, gameConfig) {
             console.log('¡Piedra entregada en el área!');
             if (player.equip === 'equipLila') {
                 gameConfig.puntsLila++;
-                player.color = 'purple'; // Cambiar el color del jugador cuando suelta la roca en el area   
             } else if (player.equip === 'equipBlau') {
                 gameConfig.puntsBlau++;
-                player.color = 'blue'; // Cambiar el color del jugador
             }
             console.log('Puntos del equipo lila:', gameConfig.puntsLila);
             console.log('Puntos del equipo blau:', gameConfig.puntsBlau);
@@ -190,8 +192,6 @@ export function agafarRoca(player, gameConfig) {
                 y: player.y
             });
             player.piedra = false; // Marcar al jugador como que no tiene la roca
-            if (player.equip === 'equipLila') player.color = 'purple'; // Aqui cambia el color cuando deja la piedra
-            if (player.equip === 'equipBlau') player.color = 'blue'; // Lo mismo con el azul
             console.log('¡Soltaste una piedra!');
         }
     } else {
@@ -209,25 +209,12 @@ export function agafarRoca(player, gameConfig) {
             if (isColliding) {
                 console.log('¡Recogiste una piedra!');
                 player.piedra = true; // Marcar al jugador como que tiene la roca
-                cambiarColor(player);
                 pickedUp = true; // Marcar que ya recogió una piedra
                 return false; // Eliminar la roca del array
             }
             return true; // Mantener la roca
         });
     }
-}
-
-function cambiarColor(player) {
-
-    console.log(player.piedra)
-
-    if (player.piedra) {
-        console.log('Aqui')
-        player.color = 'black'
-        console.log(player.color)
-    }
-
 }
 
 function comprovarRocaAgafada(player, gameConfig) {
@@ -239,9 +226,6 @@ function comprovarRocaAgafada(player, gameConfig) {
             player.y < rock.y + 20 &&
             player.y + 30 > rock.y;
 
-        if (isColliding) {
-            console.log('Esta colisionando con una roca');
-        }
         return isColliding;
     });
 }

@@ -4,13 +4,17 @@ const camelloAzulFuerte = new Image();
 const camelloLilaFuerte = new Image();
 const camelloConPiedraAzulFlojo = new Image();
 const camelloConPiedraLilaFlojo = new Image();
+const camelloConPiedraAzulFuerte = new Image();
+const camelloConPiedraLilaFuerte = new Image();
 
 camelloAzul.src = '../img/camelloAzulFlojo.svg';
 camelloLila.src = '../img/camelloLilaFlojo.svg';
 camelloAzulFuerte.src = '../img/camelloAzulFuerte.svg';
 camelloLilaFuerte.src = '../img/camelloLilaFuerte.svg';
-camelloConPiedraAzulFlojo.src = '../img/camelloAzulFlojoConPiedra.svg';
-camelloConPiedraLilaFlojo.src = '../img/camelloLilaFlojoConPiedra.svg';
+camelloConPiedraAzulFlojo.src = '../img/camelloConPiedraAzulFlojo.svg';
+camelloConPiedraLilaFlojo.src = '../img/camelloConPiedraLilaFlojo.svg';
+camelloConPiedraAzulFuerte.src = '../img/camelloConPiedraAzulFuerte.svg';
+camelloConPiedraLilaFuerte.src = '../img/camelloConPiedraLilFuerte.svg';
 
 export function crearAreaDeJoc(pincell, areaDeJoc, area1, area2, rocks, players, playerId) {
     pincell.clearRect(0, 0, areaDeJoc.width, areaDeJoc.height);
@@ -40,7 +44,7 @@ function crearRoques(rock, pincell) {
     pincell.fillRect(rock.x, rock.y, 20, 20);
 }
 
-function crearJugadors(player, pincell, playerId) {
+export function crearJugadors(player, pincell, playerId) {
     const size = 50; // Tamaño de la imagen del camello.
     const halfSize = size / 2;
 
@@ -54,20 +58,25 @@ function crearJugadors(player, pincell, playerId) {
         } else {
             camello = player.equip === 'equipBlau' ? camelloAzul : camelloLila;
         }
-        
     } else {
-        camello = player.equip === 'equipBlau' ? camelloAzulFuerte : camelloLilaFuerte;
+        if (player.piedra) {
+            camello = player.equip === 'equipBlau' ? camelloConPiedraAzulFuerte : camelloConPiedraLilaFuerte;
+        } else {
+            camello = player.equip === 'equipBlau' ? camelloAzulFuerte : camelloLilaFuerte;
+        }
     }
 
-    // Dibujar el camello reflejado si va a la izquierda.
-    if (player.direction === 'left') {
-        pincell.translate(player.x + halfSize, player.y + halfSize);
-        pincell.scale(-1, 1);
-        pincell.drawImage(camello, -halfSize, -halfSize, size, size);
-    } else {
-        pincell.drawImage(camello, player.x, player.y, size, size);
+    // **Colocar el camello en su posición correcta**
+    pincell.translate(player.x + halfSize, player.y + halfSize);
+
+    if (player.direction === 'left') { // Ahora usa `player.direction` en vez de `direction`
+        pincell.scale(-1, 1); // Reflejar horizontalmente
     }
 
-    pincell.restore();
+    // Dibujar la imagen centrada en (0,0) después de aplicar transformaciones
+    pincell.drawImage(camello, -halfSize, -halfSize, size, size);
+
+    pincell.restore(); // Restaurar el estado del canvas
 }
+
 
