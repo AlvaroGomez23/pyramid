@@ -13,7 +13,7 @@ import http from 'http';
 
 const app = express();
 const PORT_HTTP = 8080; // Puerto para el servidor HTTP.
-const PORT_WS = 8180; // Puerto para el servidor WebSockets.
+const PORT_WS = 8080; // Puerto para el servidor WebSockets.
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(__filename);
