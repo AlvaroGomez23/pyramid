@@ -31,7 +31,7 @@ server.listen(PORT_HTTP, () => {
 });
 
 // Servidor WebSockets.
-const wss = new WebSocketServer({ port: PORT_WS });
+const wss = new WebSocketServer({ server });
 console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth.
