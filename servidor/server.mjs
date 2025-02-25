@@ -35,7 +35,10 @@ const wss = new WebSocketServer({ port: PORT_WS });
 console.log('Servidor WebSockets en ws://localhost:8180');
 
 // Cargar credenciales OAuth.
-const credencials = JSON.parse(fs.readFileSync(path.join(_dirname, '/Oauth/credencialsOauth.json')));
+const credencials = {
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET
+};
 
 let gameConfig = {
     width: 800,
@@ -57,9 +60,9 @@ let jugadors_equip_2 = 0
 passport.use(
     new GoogleStrategy(
         {
-            clientID: credencials.clientId,
-            clientSecret: credencials.clientSecret,
-            callbackURL: `http://localhost:${PORT_HTTP}/auth/google/callback`,
+            clientID: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+            callbackURL: process.env.CALLBACK_URL || `http://localhost:${PORT_HTTP}/auth/google/callback`,
         },
         (accessToken, refreshToken, profile, done) => {
             return done(null, profile);
