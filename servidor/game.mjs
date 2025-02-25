@@ -244,7 +244,7 @@ function comprovarGameAreaRoca(player, area) {
 
 function comprovarGuanyadors(gameConfig) {
     let guanyador = null;
-    const PUNTUACIO_TOTAL = 10;
+    const PUNTUACIO_TOTAL = 2;
 
     if (gameConfig.puntsBlau >= PUNTUACIO_TOTAL) {
         guanyador = 'equipBlau';
@@ -253,7 +253,6 @@ function comprovarGuanyadors(gameConfig) {
     }
 
     if (guanyador) {
-        console.log(`¡${guanyador} ha ganado!`);
         resetejarJoc();
     }
 }

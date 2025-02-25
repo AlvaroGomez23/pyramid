@@ -10,9 +10,6 @@ let playerId = null;
 let currentDirection = null; // Guardar la dirección actual
 let movementInterval = null; // Guardar el intervalo de movimiento
 
-let puntsBlau = 0;
-let puntsLila = 0;
-
 let areaLila = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
 let areaBlava = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 21, 255, 0.74)' };
 
@@ -31,16 +28,20 @@ function init() {
             areaDeJoc.width = (areaDeJoc.width + 30);
             areaDeJoc.height = (areaDeJoc.height + 30);
             rocks = data.rocks || [];
-            puntsBlau = data.puntsBlau;
-            puntsLila = data.puntsLila;
 
             areaLila = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
             areaBlava = { x: areaDeJoc.width - 150, y: areaDeJoc.height - 150, width: 150, height: 150, color: 'rgba(0, 128, 255, 0.74)' };
             
-            document.getElementById('puntuacioBlau').textContent = puntsBlau;
-            document.getElementById('puntuacioLila').textContent = puntsLila;
+            document.getElementById('puntuacioBlau').textContent = data.puntsBlau;
+            document.getElementById('puntuacioLila').textContent = data.puntsLila;
 
-            gameRender.crearAreaDeJoc(pincell, areaDeJoc, areaLila, areaBlava, rocks, players, playerId);
+            gameRender.crearAreaDeJoc(pincell, areaDeJoc, areaLila, areaBlava, rocks, players, playerId, data.puntsLila, data.puntsBlau);
+
+            if (data.puntsBlau == 10) {
+                alert("El equip blau ha guanyat!");
+            } else if (data.puntsLila == 10) {
+                alert("El equip lila ha guanyat!");
+            }
         }
         
         if (data.type === 'connected') {
