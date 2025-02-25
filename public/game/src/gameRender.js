@@ -81,12 +81,12 @@ function crearRoques(rock, pincell) {
 }
 
 export function crearJugadors(player, pincell, playerId) {
-    const size = 50; // Tamaño de la imagen del camello.
+    const size = 50; // Mida del camell
     const halfSize = size / 2;
 
-    pincell.save(); // Guardar el estado del canvas.
+    pincell.save();
 
-    // Determinar la imagen del camello.
+    // Determminar el camell que es mostrarà.
     let camello;
     if (player.id === playerId) {
         if (player.piedra) {
@@ -102,14 +102,12 @@ export function crearJugadors(player, pincell, playerId) {
         }
     }
 
-    // **Colocar el camello en su posición correcta**
     pincell.translate(player.x + halfSize, player.y + halfSize);
 
-    if (player.direction === 'left') { // Ahora usa `player.direction` en vez de `direction`
-        pincell.scale(-1, 1); // Reflejar horizontalmente
+    if (player.direction === 'left') { 
+        pincell.scale(-1, 1); // Fer que el camell miri cap a la esquerra
     }
 
-    // Dibujar la imagen centrada en (0,0) después de aplicar transformaciones
     pincell.drawImage(camello, -halfSize, -halfSize, size, size);
 
     pincell.restore(); // Restaurar el estado del canvas

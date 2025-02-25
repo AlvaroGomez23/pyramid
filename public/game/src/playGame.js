@@ -7,8 +7,8 @@ let socket;
 let players = {};
 let rocks = [];
 let playerId = null;
-let currentDirection = null; // Guardar la dirección actual
-let movementInterval = null; // Guardar el intervalo de movimiento
+let currentDirection = null; // Guardar la direccio
+let movementInterval = null; // Guardar l'interval de moviment
 
 let areaLila = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(204, 0, 255, 0.5)' };
 let areaBlava = { x: 0, y: 0, width: 150, height: 150, color: 'rgba(0, 21, 255, 0.74)' };
@@ -53,7 +53,7 @@ function init() {
         }
     };
 
-    // Manejo del movimiento automático
+    // Moviment del jugador
     window.addEventListener('keydown', (event) => {
         if (!playerId) return;
 
@@ -96,7 +96,7 @@ function comencarMoviment(direction) {
     if (movementInterval) clearInterval(movementInterval);
 
     if (playerId && players[playerId]) {
-        players[playerId].direction = direction; // Actualiza la dirección del jugador en el objeto players
+        players[playerId].direction = direction;
     }
 
     movementInterval = setInterval(() => {

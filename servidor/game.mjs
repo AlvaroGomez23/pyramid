@@ -6,14 +6,14 @@ import { resetejarJoc, transmetreEstatJoc } from "./server.mjs";
 export function crearJugador(gameConfig, players, jugadors_equip_1, jugadors_equip_2) {
     console.log('Nuevo jugador conectado!');
 
-    // Generar ID único:
+    // Generar un id unic
     const playerId = crypto.randomUUID();
 
-    // Asignar equipo:
+    // Assignar l'equip
     const equipJugador = assignarEquip(players, jugadors_equip_1, jugadors_equip_2);
 
     let startX, startY;
-    // Posición inicial:
+    // Posició incial
     do {
         if (equipJugador === 'equipLila') {
             startX = Math.random() * (gameConfig.areaLila.width - 30);
@@ -43,7 +43,7 @@ function assignarEquip(players, jugadors_equip_1, jugadors_equip_2) {
     }
 
     if (jugadors_equip_1 === jugadors_equip_2) {
-        // Si los equipos están equilibrados, asignar aleatoriamente
+        // Si els equips estan equilibrats, assignar aleatoriament
         const primerEquip = Math.floor(Math.random() * 2) + 1;
         if (primerEquip === 1) {
             jugadors_equip_1++;
@@ -52,12 +52,11 @@ function assignarEquip(players, jugadors_equip_1, jugadors_equip_2) {
             jugadors_equip_2++;
             return EQUIP_2;
         }
+        // Depenent dels membres dels equips, assignar a l'equip amb menys jugadors
     } else if (jugadors_equip_1 > jugadors_equip_2) {
-        // Si hay más jugadores en el equipo 1, asignar al equipo 2
         jugadors_equip_2++;
         return EQUIP_2;
     } else if (jugadors_equip_2 > jugadors_equip_1) {
-        // Si hay más jugadores en el equipo 2, asignar al equipo 1
         jugadors_equip_1++;
         return EQUIP_1;
     }
@@ -90,14 +89,14 @@ function assignarColor(equipJugador) {
 
 function comprovacioPosicioOcupada(x, y, players) {
     return Object.values(players).some(player => {
-        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar si la distancia entre jugadores es menor a 30
+        return Math.hypot(player.x - x, player.y - y) < 30; // Verificar que la distancia sigui major a 30 per que no quedin 
     });
 }
 
 // MOVIMENT JUGADOR -------------------------------
 // ------------------------------------------------
 
-let movementIntervals = {}; // Almacena los intervalos de movimiento de cada jugador
+let movementIntervals = {}; // Guarda els intervals dels jugadors
 
 
 export function moureJugador(player, direction, players, gameConfig) {
@@ -112,16 +111,16 @@ export function moureJugador(player, direction, players, gameConfig) {
     if (direction === 'up') newY = Math.max(0, player.y - step);
     if (direction === 'down') newY = Math.min(gameConfig.height, player.y + step);
 
-    // Verificar colisión con otros jugadores
+    // Verificar la colisió entre jugadors
     if (!comprovarCollision({ ...player, x: newX, y: newY }, players)) {
         player.x = newX;
         player.y = newY;
     } else {
-        pararMoureJugador(player); // Si hay colisión, detener movimiento
+        pararMoureJugador(player); // En cas de que dos jugadors colisionin es para el seu moviment
     }
 
     comprovarRocaAgafada(player, gameConfig);
-    // Detener si llega al borde
+    // Si arriba a un dels extrems para el moviment
     if (player.x <= 0 || player.x >= gameConfig.width || player.y <= 0 || player.y >= gameConfig.height) {
         pararMoureJugador(player);
     }
@@ -147,8 +146,8 @@ function comprovarCollision(currentPlayer, players) {
 // --------------------------------------
 
 export function generarRoquesGameArea(config) {
-    config.rocks = []; // Asegurar que el array esté vacío antes de llenarlo
-    if (config.rocks.length >= 10) return; // No generar más rocas si ya hay 10
+    config.rocks = [];
+    if (config.rocks.length >= 10) return;
     for (let i = 0; i < 10; i++) {
         config.rocks.push({
             x: Math.random() * config.width,
@@ -170,7 +169,7 @@ export function generarRoquesFaltants(config) {
 
 export function agafarRoca(player, gameConfig) {
     if (player.piedra) {
-        // Si el jugador ya lleva una piedra, verificar si la suelta en su área
+        // En cas de que un jugador ja tingui una pedra, fem comprovacions en cas de que al deixi en el seu area
         if (comprovarGameAreaRoca(player, player.equip === 'equipLila' ? gameConfig.areaLila : gameConfig.areaBlau)) {
             console.log('¡Piedra entregada en el área!');
             if (player.equip === 'equipLila') {
@@ -181,24 +180,24 @@ export function agafarRoca(player, gameConfig) {
             console.log('Puntos del equipo lila:', gameConfig.puntsLila);
             console.log('Puntos del equipo blau:', gameConfig.puntsBlau);
             player.piedra = false;
-            if (gameConfig.rocks.length < 10) { // Por ejemplo, siempre queremos tener 10 rocas
-                generarRoquesFaltants(gameConfig); // Llamar a esta función para generar las rocas que faltan
+            if (gameConfig.rocks.length < 10) {
+                generarRoquesFaltants(gameConfig); // Cridar a aquesta funció per regenerar roques
             }
             comprovarGuanyadors(gameConfig);
         } else {
-            // Si no está en el área, soltar la piedra en la posición actual
+            // En cas de que no estigui en el seu area, deixa la pedra en el x y del jugador
             gameConfig.rocks.push({
                 x: player.x,
                 y: player.y
             });
-            player.piedra = false; // Marcar al jugador como que no tiene la roca
-            console.log('¡Soltaste una piedra!');
+            player.piedra = false;
+            console.log('Soltaste una piedra');
         }
     } else {
-        // Si el jugador no lleva una piedra, intentar recoger una
+        // Pero si no porta cap pedra, intentem recollir una
         let pickedUp = false;
         gameConfig.rocks = gameConfig.rocks.filter(rock => {
-            if (pickedUp) return true; // Si ya recogió una piedra, mantener las demás
+            if (pickedUp) return true;
 
             const isColliding =
                 player.x < rock.x + 20 &&
@@ -208,18 +207,18 @@ export function agafarRoca(player, gameConfig) {
 
             if (isColliding) {
                 console.log('¡Recogiste una piedra!');
-                player.piedra = true; // Marcar al jugador como que tiene la roca
-                pickedUp = true; // Marcar que ya recogió una piedra
+                player.piedra = true;
+                pickedUp = true;
                 return false; // Eliminar la roca del array
             }
-            return true; // Mantener la roca
+            return true; // DEixar la roca
         });
     }
 }
 
 function comprovarRocaAgafada(player, gameConfig) {
     return gameConfig.rocks.some(rock => {
-        // Verificar colisión con bounding boxes (colisión de cuadrados)
+        // Verificar la colisio amb la roca per agafarla
         const isColliding =
             player.x < rock.x + 20 &&
             player.x + 30 > rock.x &&
@@ -244,7 +243,7 @@ function comprovarGameAreaRoca(player, area) {
 
 function comprovarGuanyadors(gameConfig) {
     let guanyador = null;
-    const PUNTUACIO_TOTAL = 10;
+    const PUNTUACIO_TOTAL = 1;
 
     if (gameConfig.puntsBlau >= PUNTUACIO_TOTAL) {
         guanyador = 'equipBlau';
